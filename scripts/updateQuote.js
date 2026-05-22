@@ -12,19 +12,19 @@ const db = admin.firestore();
 
 async function updateQuote() {
     try {
-        const res = await fetch(
-            "https://api.quotable.io/random?tags=happiness|inspirational"
-        );
-
+        const res = await fetch("https://zenquotes.io/api/random");
         const data = await res.json();
 
+        // ZenQuotes returns an ARRAY
+        const quote = data[0];
+
         await db.collection("quotes").doc("daily").set({
-            text: data.content,
-            author: data.author,
+            text: quote.q,
+            author: quote.a,
             updatedAt: new Date().toISOString()
         });
 
-        console.log("✅ Quote updated");
+        console.log("✅ Quote updated:", quote.q);
     } catch (err) {
         console.error("❌ Error:", err);
         process.exit(1);

@@ -1,0 +1,27 @@
+name: Daily Quote Update
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # every day at midnight UTC
+  workflow_dispatch: # allows manual run button
+
+jobs:
+  update-quote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install firebase-admin node-fetch
+
+      - name: Run script
+        run: node scripts/updateQuote.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

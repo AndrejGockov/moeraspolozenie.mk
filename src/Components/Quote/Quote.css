@@ -1,0 +1,167 @@
+.quote-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 70vh;
+    padding: 24px;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.quote-glass-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border-radius: 24px;
+    padding: 50px 40px;
+    width: 100%;
+    max-width: 680px;
+    text-align: center;
+    box-sizing: border-box;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.quote-glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.06);
+}
+
+.quote-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #007bff;
+    color: #ffffff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+}
+
+.quote-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.quote-typography {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 100%;
+}
+
+.quote-mark {
+    font-family: "Georgia", serif;
+    font-size: 70px;
+    color: rgba(0, 123, 255, 0.15);
+    position: absolute;
+    line-height: 1;
+    user-select: none;
+}
+
+.quote-mark.open {
+    top: -30px;
+    left: -10px;
+}
+
+.quote-mark.close {
+    bottom: -60px;
+    right: -10px;
+}
+
+.quote-main-text {
+    font-family: "Georgia", serif;
+    font-size: 24px;
+    color: #2c3e50;
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+    font-style: italic;
+    font-weight: 400;
+    position: relative;
+    z-index: 2;
+}
+
+.quote-author-name {
+    font-size: 15px;
+    color: #7f8c8d;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 30px;
+}
+
+.quote-action-tray {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.action-btn {
+    border: none;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    outline: none;
+}
+
+.action-btn.primary {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.action-btn.primary:hover {
+    background-color: #0056b3;
+}
+
+.action-btn:active {
+    transform: scale(0.97);
+}
+
+/* Elegant Skeleton Loading Shimmer Animation */
+.quote-skeleton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.skeleton-line {
+    background: linear-gradient(90deg, #f2f2f2 25%, #e6e6e6 50%, #f2f2f2 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+.skeleton-line.large {
+    width: 90%;
+    height: 24px;
+}
+
+.skeleton-line.small {
+    width: 40%;
+    height: 16px;
+    margin-top: 8px;
+}
+
+@keyframes loading-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.quote-error-zone p {
+    color: #e74c3c;
+    font-size: 15px;
+    margin-bottom: 16px;
+    font-weight: 500;
+}

@@ -13,13 +13,13 @@ const getRegisterErrorMessage = (error: any) => {
     const code = error?.code;
 
     switch (code) {
-        case "auth/email-already-in-use":
+        case "Auth/email-already-in-use":
             return "This email is already registered";
 
-        case "auth/invalid-email":
+        case "Auth/invalid-email":
             return "Invalid email format";
 
-        case "auth/weak-password":
+        case "Auth/weak-password":
             return "Password should be at least 6 characters";
 
         default:

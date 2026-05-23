@@ -40,7 +40,7 @@ export function QuizCompleted() {
     useEffect(() => {
         const interval = setInterval(() => {
             setTimeLeft(getTimeUntilMidnight());
-        }, 60000); // update every minute
+        }, 60000);
 
         return () => clearInterval(interval);
     }, []);
@@ -54,33 +54,65 @@ export function QuizCompleted() {
     }
 
     return (
-        <div style={{ textAlign: "center", marginTop: 60, padding: 20 }}>
-            <h1>Го завршивте денешниот квиз 🎉</h1>
-
+        <div
+            style={{
+                minHeight: "100vh",
+                background: "#f5f7fb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 20
+            }}
+        >
+            {/* CARD */}
             <div
                 style={{
-                    marginTop: 30,
-                    padding: 20,
-                    border: "1px solid #ddd",
-                    borderRadius: 12,
-                    display: "inline-block",
-                    minWidth: 280
+                    width: 700,
+                    background: "white",
+                    borderRadius: 16,
+                    padding: 28,
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                    textAlign: "center",
+                    transform: "translateY(-260px)"
                 }}
             >
-                <h2>Вашето задоволство: {data.avgScore} / 5</h2>
+                <h1>Го завршивте денешниот квиз 🎉</h1>
 
-                <p style={{ marginTop: 15, fontSize: 16 }}>
-                    {data.recommendation}
-                </p>
+                <div
+                    style={{
+                        marginTop: 25,
+                        padding: 20,
+                        border: "1px solid #eee",
+                        borderRadius: 12,
+                        background: "#fafafa"
+                    }}
+                >
+                    <h2 style={{ marginBottom: 10 }}>
+                        Вашето задоволство денеска: {data.avgScore} / 5
+                    </h2>
 
-                <p style={{ marginTop: 20, color: "#007bff", fontWeight: 600 }}>
-                    Следниот квиз ќе биде достапен за: {timeLeft.hours}ч {timeLeft.minutes}м
+                    <p style={{ fontSize: 16, marginBottom: 15 }}>
+                        {data.recommendation}
+                    </p>
+
+                    <div
+                        style={{
+                            marginTop: 15,
+                            padding: 12,
+                            borderRadius: 10,
+                            background: "#eef5ff",
+                            color: "#007bff",
+                            fontWeight: 600
+                        }}
+                    >
+                        Следниот квиз ќе се отвори за: {timeLeft.hours}ч {timeLeft.minutes}м
+                    </div>
+                </div>
+
+                <p style={{ marginTop: 25, color: "#666" }}>
+                    Вратете се наскоро!
                 </p>
             </div>
-
-            <p style={{ marginTop: 30, color: "#666" }}>
-                Вратете се утре за нов дневен квиз 🙂
-            </p>
         </div>
     );
 }

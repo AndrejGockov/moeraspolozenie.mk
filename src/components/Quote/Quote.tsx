@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuotes } from "../../Context/QuoteContext";
 import "./Quote.css";
 
@@ -11,16 +12,13 @@ import {
 } from "firebase/firestore";
 
 export function Quote() {
+    const navigate = useNavigate();
     const { dailyQuote, loading } = useQuotes();
-
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
-
     const hasQuote = dailyQuote?.text && dailyQuote?.author;
-
     const today = new Date().toISOString().split("T")[0];
 
-    // 🔥 CHECK IF QUOTE ALREADY SAVED (persist after refresh)
     useEffect(() => {
         const checkSaved = async () => {
             const user = auth.currentUser;
@@ -41,7 +39,13 @@ export function Quote() {
 
     const saveQuote = async () => {
         const user = auth.currentUser;
-        if (!user || !hasQuote) return;
+
+        if (!user) {
+            navigate("/login");
+            return;
+        }
+
+        if (!hasQuote) return;
 
         setSaving(true);
 
@@ -107,7 +111,7 @@ export function Quote() {
                                 ? "Already saved"
                                 : saving
                                     ? "Saving..."
-                                    : "Save Quote"}
+                                    : "Click to save this quote"}
                         </button>
                     </div>
                 )}

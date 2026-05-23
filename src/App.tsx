@@ -10,9 +10,8 @@ import { QuoteProvider } from './Context/QuoteContext';
 import { ResetPassword } from "./components/Auth/ResetPassword/ResetPassword";
 import { DailyQuiz } from "./components/DailyQuiz/DailyQuiz";
 import { QuizCompleted } from "./components/DailyQuiz/QuizCompleted";
-
-function Home() { return <h2>Home Page</h2>; }
-function Dashboard() { return <h2>Dashboard Page (Protected)</h2>; }
+import { Dashboard } from "./components/Dashboard/Dashboard";
+import { Home } from "./components/Home/Home";
 
 function App() {
     return (

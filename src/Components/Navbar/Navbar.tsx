@@ -1,25 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { onAuthStateChanged, signOut, type User } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
+import { useAuth } from "../../hooks/useAuth";
 import "./Navbar.css";
 import { hasCompletedQuizToday } from "../../utils/quizComplete";
 
 export function Navbar() {
-    const [user, setUser] = useState<User | null>(null);
+    const { user, loading } = useAuth();
     const [checkingQuiz, setCheckingQuiz] = useState(false);
-    const [loadingAuth, setLoadingAuth] = useState(true);
-
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setLoadingAuth(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
 
     const handleQuizClick = async () => {
         if (!user) {
@@ -28,23 +18,34 @@ export function Navbar() {
         }
 
         setCheckingQuiz(true);
-
         const done = await hasCompletedQuizToday(user.uid);
-
         setCheckingQuiz(false);
 
         navigate(done ? "/quiz/completed" : "/quiz");
     };
 
     const handleLogout = async () => {
-        await signOut(auth);
-        navigate("/");
+        try {
+            const today = new Date().toISOString().split("T")[0];
+
+            localStorage.removeItem("last_known_name");
+            localStorage.removeItem("was_authenticated");
+            localStorage.removeItem(`quiz_${today}`);
+
+            if (user?.uid) {
+                localStorage.removeItem(`savedQuote_${user.uid}_${today}`);
+            }
+
+            await signOut(auth);
+            navigate("/");
+        } catch (err) {
+            console.error("Sign out error:", err);
+        }
     };
 
     return (
         <nav className="navbar">
             <div className="nav-container">
-
                 <div className="nav-left-group">
                     <Link to="/" className="nav-logo">
                         MoeZadovolstvo<span>.mk</span>
@@ -56,13 +57,11 @@ export function Navbar() {
                                 Home
                             </button>
                         </li>
-
                         <li>
                             <button className="nav-item" onClick={() => navigate("/dashboard")}>
                                 My Dashboard
                             </button>
                         </li>
-
                         <li>
                             <button
                                 className="nav-item"
@@ -73,7 +72,6 @@ export function Navbar() {
                                 Daily Mood Quiz
                             </button>
                         </li>
-
                         <li>
                             <button className="nav-item" onClick={() => navigate("/quote")}>
                                 Today's Quote
@@ -83,12 +81,11 @@ export function Navbar() {
                 </div>
 
                 <div className="nav-right-group">
-                    {loadingAuth ? null : user ? (
+                    {loading ? null : user ? (
                         <div className="user-profile-zone">
                             <span className="welcome-user">
                                 Hi, {user.displayName || "User"}
                             </span>
-
                             <button onClick={handleLogout} className="logout-btn">
                                 Log Out
                             </button>
@@ -98,14 +95,12 @@ export function Navbar() {
                             <Link to="/login" className="nav-link-btn">
                                 Login
                             </Link>
-
                             <Link to="/register" className="nav-btn">
                                 Register
                             </Link>
                         </div>
                     )}
                 </div>
-
             </div>
         </nav>
     );

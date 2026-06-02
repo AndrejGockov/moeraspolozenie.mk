@@ -1,365 +1,367 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { db } from "../../firebase";
-import {
-    collection,
-    getDocs,
-    deleteDoc,
-    doc
-} from "firebase/firestore";
-import { PieChart, Pie, ResponsiveContainer } from "recharts";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useAuth } from "../../hooks/useAuth";
+import { useQuotes } from "../../Context/QuoteContext";
 
 export function Dashboard() {
-    const [tab, setTab] = useState<"stats" | "quotes" | "history" | "review">("stats");
+    const [tab, setTab] = useState<"stats" | "quotes" | "history">("stats");
     const [quizData, setQuizData] = useState<any[]>([]);
-    const [quotes, setQuotes] = useState<any[]>([]);
-    const [selectedQuiz, setSelectedQuiz] = useState<any | null>(null);
+    const [expandedQuizId, setExpandedQuizId] = useState<string | null>(null);
 
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
+    const { savedQuotes, loading: quotesLoading, removeSavedQuote } = useQuotes();
+    const [localQuotes, setLocalQuotes] = useState<any[]>([]);
+    const isFetched = useRef(false);
+    const [modal, setModal] = useState<{ open: boolean; id: string; text: string; author: string }>({ open: false, id: "", text: "", author: "" });
+
+
 
     useEffect(() => {
-        const loadData = async () => {
-            if (!user) return;
+        if (savedQuotes) {
+            setLocalQuotes(savedQuotes);
+        }
+    }, [savedQuotes]);
 
-            const quizSnap = await getDocs(
-                collection(db, "users", user.uid, "dailyQuizzes")
-            );
+    useEffect(() => {
+        if (authLoading || !user || isFetched.current) return;
 
-            const quizzes: any[] = [];
-            quizSnap.forEach((d) =>
-                quizzes.push({ id: d.id, ...d.data() })
-            );
-            setQuizData(quizzes);
-
-            const quoteSnap = await getDocs(
-                collection(db, "users", user.uid, "savedQuotes")
-            );
-
-            const saved: any[] = [];
-            quoteSnap.forEach((d) =>
-                saved.push({ id: d.id, ...d.data() })
-            );
-            setQuotes(saved);
+        const loadQuizHistory = async () => {
+            try {
+                const quizSnap = await getDocs(
+                    collection(db, "users", user.uid, "dailyQuizzes")
+                );
+                const quizzes: any[] = [];
+                quizSnap.forEach((d) => {
+                    if (d.exists()) {
+                        quizzes.push({ id: d.id, ...d.data() });
+                    }
+                });
+                setQuizData(quizzes);
+                isFetched.current = true;
+            } catch (err) {
+                console.error("Error loading quiz data:", err);
+            }
         };
+        loadQuizHistory();
+    }, [user, authLoading]);
 
-        loadData();
-    }, [user]);
 
-    const deleteQuote = async (id: string, text: string, author: string) => {
-        if (!user) return;
+    const confirmDeleteQuote = async () => {
+        const targetId = modal.id;
+        if (!user || !targetId) return;
 
-        const ok = window.confirm(
-            `Delete this quote?\n\n"${text}" — ${author}`
-        );
+        try {
+            await deleteDoc(doc(db, "users", user.uid, "savedQuotes", targetId));
+            setLocalQuotes((prev) => prev.filter((q) => q.date !== targetId && q.id !== targetId));
+            localStorage.removeItem(`savedQuote_${user.uid}_${targetId}`);
+            removeSavedQuote(targetId);
 
-        if (!ok) return;
-
-        await deleteDoc(
-            doc(db, "users", user.uid, "savedQuotes", id)
-        );
-
-        setQuotes((prev) => prev.filter((q) => q.id !== id));
+        } catch (err) {
+            console.error("Error deleting quote:", err);
+        } finally {
+            setModal({ open: false, id: "", text: "", author: "" });
+        }
     };
-
     const scores = quizData
         .map((q) => q.avgScore)
         .filter((v): v is number => typeof v === "number");
 
     const hasScores = scores.length > 0;
+    const avg = hasScores ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    const lowest = hasScores ? Math.min(...scores) : 0;
+    const highest = hasScores ? Math.max(...scores) : 0;
 
-    const avg = hasScores
-        ? scores.reduce((a, b) => a + b, 0) / scores.length
+    // Weekly avg
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const weeklyScores = quizData
+        .filter((q) => {
+            const quizDate = new Date(q.id);
+            return quizDate >= sevenDaysAgo && typeof q.avgScore === "number";
+        })
+        .map((q) => q.avgScore);
+
+    const hasWeeklyScores = weeklyScores.length > 0;
+    const weeklyAvg = hasWeeklyScores
+        ? weeklyScores.reduce((a, b) => a + b, 0) / weeklyScores.length
         : null;
 
-    const lowest = hasScores ? Math.min(...scores) : null;
-    const highest = hasScores ? Math.max(...scores) : null;
+    // Monthly avg
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const monthlyScores = quizData
+        .filter((q) => {
+            const quizDate = new Date(q.id);
+            return quizDate >= thirtyDaysAgo && typeof q.avgScore === "number";
+        })
+        .map((q) => q.avgScore);
+
+    const hasMonthlyScores = monthlyScores.length > 0;
+    const monthlyAvg = hasMonthlyScores
+        ? monthlyScores.reduce((a, b) => a + b, 0) / monthlyScores.length
+        : null;
 
     const sad = scores.filter(s => s <= 2).length;
     const neutral = scores.filter(s => s > 2 && s < 4).length;
     const happy = scores.filter(s => s >= 4).length;
 
-    const rawData = [
-        { name: "Sad 😔", value: sad, fill: "#ff4d4f" },
-        { name: "Neutral 😐", value: neutral, fill: "#ffa940" },
-        { name: "Happy 🙂", value: happy, fill: "#52c41a" }
-    ];
-
-    const pieData = rawData.filter(item => item.value > 0);
-    const hasData = pieData.length > 0;
+    const pieData = [
+        { name: "Depressed days 🔴", value: sad, fill: "#ff4d4f" },
+        { name: "Neutral days 🟠", value: neutral, fill: "#ffa940" },
+        { name: "Happy days 🟢", value: happy, fill: "#52c41a" }
+    ].filter(item => item.value > 0);
 
     return (
-        <div
-            style={{
-                minHeight: "100vh",
-                background: "#f5f7fb",
-                padding: 30
-            }}
-        >
-            <div
-                style={{
-                    width: 900,
-                    margin: "0 auto",
-                    background: "white",
-                    borderRadius: 16,
-                    padding: 24,
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-                    minHeight: 650
-                }}
-            >
-                <h1 style={{ fontWeight: 400 }}>
-                    {user?.displayName}{" "}
-                    <span style={{ fontSize: 14, color: "#777" }}>
+        <div style={{ width: "100%", maxWidth: 900, margin: "0 auto", padding: "20px" }}>
+            <div style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", minHeight: 650, boxSizing: "border-box" }}>
+                <h1 style={{ fontWeight: 400, margin: 0, fontSize: 28 }}>
+                    {user?.displayName || "User"}{" "}
+                    <span style={{ fontSize: 14, color: "#777", fontWeight: 400 }}>
                         ({user?.email})
                     </span>
                 </h1>
 
-                <hr style={{
-                    border: "none",
-                    borderTop: "1px solid #eee",
-                    margin: "12px 0 20px"
-                }} />
+                <hr style={{ border: "none", borderTop: "1px solid #eee", margin: "16px 0 24px" }} />
 
-                {/* TABS */}
-                <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+                <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap" }}>
                     <button
                         onClick={() => setTab("stats")}
-                        style={{
-                            padding: "10px 16px",
-                            borderRadius: 8,
-                            border: "none",
-                            cursor: "pointer",
-                            background: tab === "stats" ? "#007bff" : "#eee",
-                            color: tab === "stats" ? "white" : "#333",
-                            fontWeight: 600
-                        }}
+                        style={{ padding: "10px 16px", borderRadius: 8, border: "none", cursor: "pointer", background: tab === "stats" ? "#007bff" : "#eee", color: tab === "stats" ? "white" : "#333", fontWeight: 600 }}
                     >
                         Mood Statistics
                     </button>
-
                     <button
                         onClick={() => setTab("quotes")}
-                        style={{
-                            padding: "10px 16px",
-                            borderRadius: 8,
-                            border: "none",
-                            cursor: "pointer",
-                            background: tab === "quotes" ? "#007bff" : "#eee",
-                            color: tab === "quotes" ? "white" : "#333",
-                            fontWeight: 600
-                        }}
+                        style={{ padding: "10px 16px", borderRadius: 8, border: "none", cursor: "pointer", background: tab === "quotes" ? "#007bff" : "#eee", color: tab === "quotes" ? "white" : "#333", fontWeight: 600 }}
                     >
                         Saved Quotes
                     </button>
-
                     <button
                         onClick={() => setTab("history")}
-                        style={{
-                            padding: "10px 16px",
-                            borderRadius: 8,
-                            border: "none",
-                            cursor: "pointer",
-                            background: tab === "history" ? "#007bff" : "#eee",
-                            color: tab === "history" ? "white" : "#333",
-                            fontWeight: 600
-                        }}
+                        style={{ padding: "10px 16px", borderRadius: 8, border: "none", cursor: "pointer", background: tab === "history" ? "#007bff" : "#eee", color: tab === "history" ? "white" : "#333", fontWeight: 600 }}
                     >
                         Quiz History
                     </button>
                 </div>
 
-                <div style={{ minHeight: 520 }}>
-
-                    {/* STATS */}
+                <div style={{ minHeight: 480 }}>
                     {tab === "stats" && (
                         <div>
-                            <h2>Mood quiz statistics:</h2>
-
-                            {hasData ? (
-                                <div style={{
-                                    display: "grid",
-                                    gridTemplateColumns: "320px 1fr 1fr",
-                                    gap: 30,
-                                    alignItems: "center",
-                                    marginTop: 20
-                                }}>
-                                    <div style={{ width: 320, height: 320 }}>
+                            <h2 style={{ fontSize: 20, marginBottom: 16 }}>Mood quiz statistics:</h2>
+                            {quizData.length > 0 ? (
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center" }}>
+                                    <div style={{ width: "100%", height: 280, position: "relative" }}>
                                         <ResponsiveContainer width="100%" height="100%">
                                             <PieChart>
-                                                <Pie
-                                                    data={pieData}
-                                                    dataKey="value"
-                                                    nameKey="name"
-                                                    outerRadius={110}
-                                                    stroke="none"
-                                                />
+                                                <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={90} stroke="none">
+                                                    {pieData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                                    ))}
+                                                </Pie>
+                                                <Tooltip />
                                             </PieChart>
                                         </ResponsiveContainer>
                                     </div>
 
-                                    <div style={{ fontSize: 14 }}>
-                                        <p>🟢 Happy days</p>
-                                        <p>🟠 Neutral days</p>
-                                        <p>🔴 Depressed days</p>
-                                    </div>
-
-                                    <div style={{ lineHeight: 2 }}>
-                                        <p>All time average: {(avg as number)?.toFixed(2)}</p>
-                                        <p>Lowest score: {lowest}</p>
-                                        <p>Highest score: {highest}</p>
+                                    <div style={{ lineHeight: "2.2", fontSize: 16, textAlign: "left" }}>
+                                        <p style={{ margin: 0 }}>🟢 <b>Happy days:</b> {happy}</p>
+                                        <p style={{ margin: 0 }}>🟠 <b>Neutral days:</b> {neutral}</p>
+                                        <p style={{ margin: 0 }}>🔴 <b>Depressed days:</b> {sad}</p>
+                                        <hr style={{ border: "none", borderTop: "1px solid #edf2f7", margin: "12px 0" }} />
+                                        <p style={{ margin: 0 }}>
+                                            Weekly average (last 7 days):{" "}
+                                            <b style={{ color: weeklyAvg && weeklyAvg >= 4 ? "#52c41a" : weeklyAvg && weeklyAvg <= 2 ? "#ff4d4f" : "#fa8c16" }}>
+                                                {weeklyAvg ? `${weeklyAvg.toFixed(2)} / 5` : "No logs this week"}
+                                            </b>
+                                        </p>
+                                        <p style={{ margin: 0 }}>
+                                            Monthly average (30 days):{" "}
+                                            <b style={{ color: monthlyAvg && monthlyAvg >= 4 ? "#52c41a" : monthlyAvg && monthlyAvg <= 2 ? "#ff4d4f" : "#fa8c16" }}>
+                                                {monthlyAvg ? `${monthlyAvg.toFixed(2)} / 5` : "No logs"}
+                                            </b>
+                                        </p>
+                                        <p style={{ margin: 0 }}>All time average: <b style={{ color: "#007bff" }}>{avg.toFixed(2)} / 5</b></p>
+                                        <p style={{ margin: 0 }}>Highest quiz score: <b>{highest}</b></p>
+                                        <p style={{ margin: 0 }}>Lowest quiz score: <b>{lowest}</b></p>
+                                        <p style={{ margin: 0 }}>Total tests taken: <b>{quizData.length}</b></p>
                                     </div>
                                 </div>
                             ) : (
-                                <p style={{ color: "#777", marginTop: 20 }}>
-                                    No mood data yet, take the daily quiz to start tracking your mood chart!
-                                </p>
+                                <p style={{ color: "#777", textAlign: "left" }}>No mood data yet. Take the daily quiz to start tracking your mood charts!</p>
                             )}
                         </div>
                     )}
 
                     {tab === "quotes" && (
                         <div>
-                            <h2>Saved Quotes</h2>
-
-                            {quotes.length === 0 && (
-                                <p style={{ color: "#777" }}>
-                                    You haven't saved any quotes yet. Check today's quote to save a daily quote!
-                                </p>
-                            )}
-
-                            <div style={{ marginTop: 20 }}>
-                                {quotes.map((q) => (
-                                    <div
-                                        key={q.id}
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            padding: 14,
-                                            border: "1px solid #eee",
-                                            borderRadius: 12,
-                                            background: "#fafafa",
-                                            marginBottom: 10
-                                        }}
-                                    >
-                                        <p style={{ margin: 0 }}>
-                                            “{q.text}” — {q.author}
-                                        </p>
-
-                                        <button
-                                            onClick={() =>
-                                                deleteQuote(q.id, q.text, q.author)
-                                            }
-                                            style={{
-                                                background: "none",
-                                                border: "none",
-                                                color: "#dc3545",
-                                                cursor: "pointer",
-                                                fontWeight: 600
-                                            }}
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* HISTORY */}
-                    {tab === "history" && (
-                        <div>
-                            <h2>Quiz History</h2>
-
-                            {quizData.length === 0 ? (
-                                <p style={{ color: "#777" }}>
-                                    You haven't taken a mood quiz yet. Check your daily mood today!
-                                </p>
-                            ) : (
-                                <div style={{ marginTop: 20 }}>
-                                    {quizData.map((q) => (
-                                        <div
-                                            key={q.id}
-                                            onClick={() => {
-                                                setSelectedQuiz(q);
-                                                setTab("review");
-                                            }}
-                                            style={{
-                                                padding: 14,
-                                                border: "1px solid #eee",
-                                                borderRadius: 12,
-                                                background: "#fafafa",
-                                                marginBottom: 10,
-                                                cursor: "pointer"
-                                            }}
-                                        >
-                                            <div style={{ fontWeight: 600 }}>
-                                                {q.id}
+                            <h2 style={{ fontSize: 20, marginBottom: 16 }}>Your Saved Quotes:</h2>
+                            {quotesLoading && localQuotes.length === 0 ? (
+                                <p style={{ color: "#777" }}>Loading saved dashboard entries...</p>
+                            ) : localQuotes.length > 0 ? (
+                                <div style={{ display: "grid", gap: 16 }}>
+                                    {localQuotes.map((q, idx) => (
+                                        <div key={q.date || q.id || idx} style={{ padding: 16, border: "1px solid #eee", borderRadius: 12, background: "#fafafa", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                            <div style={{ paddingRight: 20, textAlign: "left" }}>
+                                                <p style={{ margin: "0 0 6px 0", fontStyle: "italic", fontSize: 15 }}>"{q.text}"</p>
+                                                <small style={{ color: "#666", fontWeight: 600 }}>— {q.author || "Anonymous"}</small>
                                             </div>
-
-                                            <div style={{ fontSize: 13, color: "#777" }}>
-                                                Score: {q.avgScore}
-                                            </div>
+                                            <button
+                                                onClick={() => setModal({ open: true, id: q.date || q.id || "", text: q.text, author: q.author || "Anonymous" })}
+                                                style={{ background: "#ff4d4f", color: "white", border: "none", padding: "6px 12px", borderRadius: 6, cursor: "pointer", fontWeight: 600, fontSize: 13 }}
+                                            >
+                                                Remove
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
+                            ) : (
+                                <p style={{ color: "#777" }}>You haven't saved any quotes to your dashboard yet.</p>
                             )}
                         </div>
                     )}
 
-                    {/* REVIEW */}
-                    {tab === "review" && selectedQuiz && (
+                    {tab === "history" && (
                         <div>
-                            <button
-                                onClick={() => setTab("history")}
-                                style={{
-                                    marginBottom: 20,
-                                    background: "none",
-                                    border: "none",
-                                    color: "#007bff",
-                                    cursor: "pointer",
-                                    fontWeight: 600
-                                }}
-                            >
-                                ← Back to list
-                            </button>
+                            <h2 style={{ fontSize: 20, marginBottom: 18, fontWeight: 600, color: "#1a1a1a", textAlign: "left" }}>
+                                Quiz History Logs
+                            </h2>
+                            {quizData.length > 0 ? (
+                                <div style={{ display: "grid", gap: 14 }}>
+                                    {quizData.map((q) => {
+                                        const isExpanded = expandedQuizId === q.id;
+                                        const isHappy = q.avgScore >= 4;
+                                        const isSad = q.avgScore <= 2;
 
-                            <h2>Quiz Review</h2>
+                                        const themeColor = isHappy ? "#52c41a" : isSad ? "#ff4d4f" : "#ffa940";
+                                        const themeBg = isHappy ? "#f6ffed" : isSad ? "#fff1f0" : "#fff7e6";
 
-                            <div style={{
-                                marginTop: 20,
-                                padding: 20,
-                                borderRadius: 12,
-                                border: "1px solid #eee",
-                                background: "#fafafa"
-                            }}>
-                                <p><b>Score:</b> {selectedQuiz.avgScore} / 5</p>
+                                        return (
+                                            <div
+                                                key={q.id}
+                                                style={{
+                                                    padding: "18px 20px",
+                                                    border: "1px solid #eef2f5",
+                                                    borderRadius: 14,
+                                                    background: "white",
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    gap: 14,
+                                                    cursor: "pointer",
+                                                    boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01)",
+                                                    borderLeft: `5px solid ${themeColor}`,
+                                                    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                                                    boxSizing: "border-box"
+                                                }}
+                                                onClick={() => setExpandedQuizId(isExpanded ? null : q.id)}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.transform = "translateY(-1px)";
+                                                    e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02)";
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.transform = "translateY(0)";
+                                                    e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01)";
+                                                }}
+                                            >
+                                                {/* Summary row */}
+                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                                                    <div style={{ textAlign: "left" }}>
+                                                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                                            <span style={{ fontWeight: 700, fontSize: 16, color: "#2d3748" }}>{q.id}</span>
+                                                            <span style={{ fontSize: 12, color: "#a0aec0", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▼</span>
+                                                        </div>
+                                                        <p style={{ margin: "6px 0 0 0", color: "#4a5568", fontSize: 14, lineHeight: "1.4" }}>
+                                                            <span style={{ color: "#718096", fontWeight: 500 }}>Recommendation:</span> {q.recommendation}
+                                                        </p>
+                                                    </div>
+                                                    <div style={{
+                                                        background: themeBg,
+                                                        color: themeColor,
+                                                        padding: "6px 14px",
+                                                        borderRadius: 30,
+                                                        fontWeight: 700,
+                                                        fontSize: 14,
+                                                        border: `1px solid ${themeColor}22`
+                                                    }}>
+                                                        Score: {typeof q.avgScore === "number" ? q.avgScore.toFixed(1) : q.avgScore}
+                                                    </div>
+                                                </div>
 
-                                <p style={{ marginTop: 10 }}>
-                                    {selectedQuiz.recommendation}
-                                </p>
-
-                                <hr style={{ margin: "15px 0" }} />
-
-                                <h3>Question answers</h3>
-
-                                {selectedQuiz.answers?.map((a: any, i: number) => (
-                                    <div
-                                        key={i}
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            padding: "6px 0"
-                                        }}
-                                    >
-                                        <span>{a.question}</span>
-                                        <b>{a.value}/5</b>
-                                    </div>
-                                ))}
-                            </div>
+                                                {/* Expanded Breakdown */}
+                                                {isExpanded && (
+                                                    <div
+                                                        style={{
+                                                            marginTop: 6,
+                                                            paddingTop: 18,
+                                                            borderTop: "1px solid #edf2f7",
+                                                            display: "grid",
+                                                            gap: 12
+                                                        }}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <h4 style={{ margin: "0 0 4px 0", color: "#2d3748", textAlign: "left", fontSize: 14, fontWeight: 700, letterSpacing: "0.3px", textTransform: "uppercase" }}>
+                                                            Question Log Details
+                                                        </h4>
+                                                        <div style={{ display: "grid", gap: 10 }}>
+                                                            {q.answers?.map((item: any, idx: number) => (
+                                                                <div key={idx} style={{ background: "#f8fafc", padding: "14px 16px", borderRadius: 10, border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", boxSizing: "border-box" }}>
+                                                                    <p style={{ margin: 0, fontWeight: 500, color: "#4a5568", fontSize: 14, textAlign: "left", paddingRight: 20 }}>
+                                                                        {item.question}
+                                                                    </p>
+                                                                    <span style={{
+                                                                        background: item.value >= 4 ? "#e6f7ff" : item.value <= 2 ? "#fff1f0" : "#fff7e6",
+                                                                        color: item.value >= 4 ? "#1890ff" : item.value <= 2 ? "#ff4d4f" : "#fa8c16",
+                                                                        fontWeight: 700,
+                                                                        fontSize: 13,
+                                                                        minWidth: 28,
+                                                                        height: 28,
+                                                                        borderRadius: "50%",
+                                                                        display: "flex",
+                                                                        alignItems: "center",
+                                                                        justifyContent: "center",
+                                                                        border: "1px solid currentColor"
+                                                                    }}>
+                                                    {item.value}
+                                                </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <p style={{ color: "#777", textAlign: "left" }}>No history log entries found.</p>
+                            )}
                         </div>
                     )}
 
                 </div>
             </div>
+
+            {modal.open && (
+                <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0, 0, 0, 0.4)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 20, boxSizing: "border-box" }}>
+                    <div style={{ background: "white", width: "100%", maxWidth: 480, borderRadius: 16, padding: 24, boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)", textAlign: "center", boxSizing: "border-box" }}>
+                        {/*<div style={{ fontSize: 40, marginBottom: 12 }}>🗑️</div>*/}
+                        <h3 style={{ margin: "0 0 10px 0", fontSize: 20, fontWeight: 700, color: "#1a1a1a" }}>Delete Quote?</h3>
+                        <p style={{ margin: "0 0 20px 0", color: "#666", fontSize: 14, lineHeight: "1.5" }}>Are you sure you want to delete this quote from your dashboard?</p>
+                        <div style={{ background: "#f8fafc", padding: 14, borderRadius: 12, border: "1px solid #edf2f7", fontStyle: "italic", fontSize: 14, color: "#4a5568", marginBottom: 24, textAlign: "left" }}>
+                            "{modal.text}" <br />
+                            <small style={{ fontStyle: "normal", fontWeight: 600, color: "#718096", display: "block", marginTop: 4 }}>— {modal.author}</small>
+                        </div>
+                        <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+                            <button onClick={() => setModal({ open: false, id: "", text: "", author: "" })} style={{ background: "#f1f3f5", color: "#4a5568", border: "none", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 14 }}>Cancel</button>
+                            <button onClick={confirmDeleteQuote} style={{ background: "#ff4d4f", color: "white", border: "none", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 14 }}>Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
         </div>
     );
 }

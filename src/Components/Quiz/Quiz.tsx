@@ -1,44 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "../../firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useAuth } from "../../hooks/useAuth";
+
 import { calculateAverageScore } from "../../utils/avgHappiness";
 import { getRecommendation } from "../../utils/recommendation";
 import { QUESTIONS } from "../../utils/questions";
 import { SCALE_LABELS } from "../../utils/scale";
 
-
 export function Quiz() {
     const navigate = useNavigate();
+    const { user } = useAuth();
 
-    const [checking, setChecking] = useState(true);
-    const [answers, setAnswers] = useState<number[]>(Array(10).fill(0));
-
-
-    useEffect(() => {
-        const checkToday = async () => {
-            const user = auth.currentUser;
-
-            if (!user) {
-                setChecking(false);
-                return;
-            }
-
-            const today = new Date().toISOString().split("T")[0];
-            const ref = doc(db, "users", user.uid, "dailyQuizzes", today);
-
-            const snap = await getDoc(ref);
-
-            if (snap.exists()) {
-                navigate("/quiz/completed");
-                return;
-            }
-
-            setChecking(false);
-        };
-
-        checkToday();
-    }, [navigate]);
+    const [answers, setAnswers] = useState<number[]>(
+        Array(QUESTIONS.length).fill(0)
+    );
+    const [submitting, setSubmitting] = useState(false);
 
     const handleSelect = (index: number, value: number) => {
         const updated = [...answers];
@@ -47,36 +25,43 @@ export function Quiz() {
     };
 
     const handleSubmit = async () => {
-        const user = auth.currentUser;
-        if (!user) return;
+        if (!user || submitting) return;
 
-        const avg = calculateAverageScore(answers);
-        const recommendation = getRecommendation(avg);
+        try {
+            setSubmitting(true);
 
-        const today = new Date().toISOString().split("T")[0];
+            const avg = calculateAverageScore(answers);
+            const recommendation = getRecommendation(avg);
+            const today = new Date().toISOString().split("T")[0];
 
-        await setDoc(doc(db, "users", user.uid, "dailyQuizzes", today), {
-            answers: answers.map((value, i) => ({
-                question: QUESTIONS[i],
-                value
-            })),
-            avgScore: avg,
-            recommendation,
-            createdAt: serverTimestamp()
-        });
+            const quizPayload = {
+                answers: answers.map((value, i) => ({ question: QUESTIONS[i], value })),
+                avgScore: avg,
+                recommendation
+            };
 
-        navigate("/quiz/completed");
+            await setDoc(doc(db, "users", user.uid, "dailyQuizzes", today), {
+                answers: answers.map((value, i) => ({
+                    question: QUESTIONS[i],
+                    value
+                })),
+                avgScore: avg,
+                recommendation,
+                createdAt: serverTimestamp()
+            });
+
+            localStorage.setItem(`quiz_${today}`, JSON.stringify(quizPayload));
+            navigate("/quiz/completed");
+        } catch (err) {
+            console.error("Failed to save quiz results:", err);
+            alert("Something went wrong saving your quiz. Please try again.");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const isComplete = answers.every((a) => a > 0);
-
-    if (checking) {
-        return (
-            <div style={{ padding: 20, textAlign: "center" }}>
-                Checking if you have already completed today's quiz...
-            </div>
-        );
-    }
+    const isButtonDisabled = !isComplete || submitting;
 
     return (
         <div
@@ -89,7 +74,6 @@ export function Quiz() {
         >
             <h1 style={{ marginBottom: 10 }}>Daily Mood Quiz</h1>
 
-            {/* SCALE */}
             <div
                 style={{
                     marginBottom: 25,
@@ -125,6 +109,7 @@ export function Quiz() {
                         {[1, 2, 3, 4, 5].map((num) => (
                             <button
                                 key={num}
+                                type="button"
                                 onClick={() => handleSelect(i, num)}
                                 style={{
                                     width: 44,
@@ -135,7 +120,7 @@ export function Quiz() {
                                     color: answers[i] === num ? "white" : "#333",
                                     cursor: "pointer",
                                     fontWeight: 600,
-                                    transition: "all 0.15s ease"
+                                    transition: "background 0.2s ease"
                                 }}
                             >
                                 {num}
@@ -146,22 +131,23 @@ export function Quiz() {
             ))}
 
             <button
+                type="button"
                 onClick={handleSubmit}
-                disabled={!isComplete}
+                disabled={isButtonDisabled}
                 style={{
                     width: "100%",
                     padding: 14,
                     marginTop: 10,
-                    background: isComplete ? "#007bff" : "#ccc",
+                    background: isButtonDisabled ? "#ccc" : "#007bff",
                     color: "white",
                     border: "none",
                     borderRadius: 10,
-                    cursor: isComplete ? "pointer" : "not-allowed",
+                    cursor: isButtonDisabled ? "not-allowed" : "pointer",
                     fontWeight: 600,
                     fontSize: 15
                 }}
             >
-                Submit
+                {submitting ? "Submitting..." : "Submit"}
             </button>
         </div>
     );

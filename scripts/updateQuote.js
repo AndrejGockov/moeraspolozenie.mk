@@ -12,7 +12,7 @@ const db = admin.firestore();
 
 async function updateQuote() {
     try {
-        const res = await fetch("https://zenquotes.io/api/random");
+        const res = await fetch("https://zenquotes.io/api/today");
         const data = await res.json();
 
         // ZenQuotes returns an ARRAY

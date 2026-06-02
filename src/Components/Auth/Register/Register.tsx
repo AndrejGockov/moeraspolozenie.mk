@@ -27,11 +27,13 @@ export function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
     const navigate = useNavigate();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (submitting) return;
 
         if (!username || !email || !password) {
             setError("All fields are required");
@@ -39,6 +41,9 @@ export function Register() {
         }
 
         try {
+            setError("");
+            setSubmitting(true);
+
             const userCredential = await createUserWithEmailAndPassword(
                 auth,
                 email,
@@ -49,19 +54,32 @@ export function Register() {
                 displayName: username
             });
 
+            localStorage.setItem("was_authenticated", "true");
+            localStorage.setItem("last_known_name", username);
+
             navigate("/", { replace: true });
         } catch (err: any) {
             setError(getRegisterErrorMessage(err));
+            setSubmitting(false);
         }
     };
 
     const handleGoogle = async () => {
+        if (submitting) return;
+
         try {
+            setError("");
+            setSubmitting(true);
             const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
+            const userCredential = await signInWithPopup(auth, provider);
+
+            localStorage.setItem("was_authenticated", "true");
+            localStorage.setItem("last_known_name", userCredential.user.displayName || "friend");
+
             navigate("/", { replace: true });
         } catch (err: any) {
             setError(getRegisterErrorMessage(err));
+            setSubmitting(false);
         }
     };
 
@@ -69,13 +87,14 @@ export function Register() {
         <div className="formContent">
             <h1>Create an account</h1>
 
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            {error && <p style={{ color: "red", fontWeight: 500, margin: "10px 0" }}>{error}</p>}
 
             <form className="log" onSubmit={handleRegister}>
                 <input
                     type="text"
                     placeholder="Username"
                     value={username}
+                    disabled={submitting}
                     onChange={(e) => setUsername(e.target.value)}
                 />
 
@@ -83,6 +102,7 @@ export function Register() {
                     type="email"
                     placeholder="Email"
                     value={email}
+                    disabled={submitting}
                     onChange={(e) => setEmail(e.target.value)}
                 />
 
@@ -90,15 +110,26 @@ export function Register() {
                     type="password"
                     placeholder="Password"
                     value={password}
+                    disabled={submitting}
                     onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <button className="primary-btn" type="submit">
-                    Register
+                <button
+                    className="primary-btn"
+                    type="submit"
+                    disabled={submitting}
+                    style={{ opacity: submitting ? 0.7 : 1, cursor: submitting ? "not-allowed" : "pointer" }}
+                >
+                    {submitting ? "Creating account..." : "Register"}
                 </button>
             </form>
 
-            <button onClick={handleGoogle} className="google-btn">
+            <button
+                onClick={handleGoogle}
+                disabled={submitting}
+                className="google-btn"
+                style={{ opacity: submitting ? 0.7 : 1, cursor: submitting ? "not-allowed" : "pointer" }}
+            >
                 <span className="google-icon-wrapper">
                     <svg className="google-icon" viewBox="0 0 533.5 544.3">
                         <path fill="#4285F4" d="M533.5 278.4c0-18.5-1.5-37-4.7-54.9H272v103.9h146.9c-6.3 34-25.2 62.8-53.8 82v68h86.9c50.8-46.8 81.5-115.8 81.5-199z"/>
@@ -107,10 +138,10 @@ export function Register() {
                         <path fill="#EA4335" d="M272 107.7c39.4 0 75 13.6 103 40.3l77.2-77.2C405.5 24.6 344.6 0 272 0 167.5 0 77.5 58.2 32.9 150.8l88.4 69.3C142.6 155 202 107.7 272 107.7z"/>
                     </svg>
                 </span>
-                Register with Google
+                {submitting ? "Connecting..." : "Register with Google"}
             </button>
 
-            <p>
+            <p style={{ marginTop: 20 }}>
                 Already have an account? <Link to="/login">Login</Link>
             </p>
         </div>

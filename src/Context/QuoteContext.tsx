@@ -1,24 +1,7 @@
-import React, {
-    createContext,
-    useState,
-    useEffect,
-    useContext
-} from "react";
-
-import {
-    getFirestore,
-    doc,
-    getDoc,
-    collection,
-    getDocs
-} from "firebase/firestore";
-
-import {
-    onAuthStateChanged,
-    type User
-} from "firebase/auth";
-
-import { app, auth } from "../firebase";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { getFirestore, doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { app } from "../firebase";
+import { useAuth } from "../hooks/useAuth";
 
 const db = getFirestore(app);
 
@@ -29,6 +12,7 @@ type Quote = {
 
 type SavedQuote = {
     text: string;
+    author: string;
     date: string;
 };
 
@@ -36,80 +20,110 @@ type QuoteContextType = {
     dailyQuote: Quote;
     savedQuotes: SavedQuote[];
     loading: boolean;
-    user: User | null;
+    addSavedQuote: (newQuote: SavedQuote) => void;
+    removeSavedQuote: (dateId: string) => void;
 };
 
 const QuoteContext = createContext<QuoteContextType | null>(null);
 
 export function QuoteProvider({ children }: { children: React.ReactNode }) {
-    const [dailyQuote, setDailyQuote] = useState<Quote>({
-        text: "",
-        author: ""
+    const { user, loading: authLoading } = useAuth();
+
+    const [dailyQuote, setDailyQuote] = useState<Quote>(() => {
+        const cached = localStorage.getItem("dailyQuote");
+        return cached ? JSON.parse(cached) : { text: "", author: "" };
     });
 
     const [savedQuotes, setSavedQuotes] = useState<SavedQuote[]>([]);
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [quoteLoading, setQuoteLoading] = useState(true);
+    const [savedQuotesLoading, setSavedQuotesLoading] = useState(false);
+
+    const today = new Date().toISOString().split("T")[0];
 
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (u) => {
-            setUser(u);
-        });
+        const fetchDailyQuote = async () => {
+            const lastFetch = localStorage.getItem("quote_date");
 
-        return () => unsub();
-    }, []);
+            if (lastFetch === today) {
+                setQuoteLoading(false);
+                return;
+            }
 
-    useEffect(() => {
-        const fetchData = async () => {
             try {
-                setLoading(true);
-
+                setQuoteLoading(true);
                 const snap = await getDoc(doc(db, "quotes", "daily"));
 
                 if (snap.exists()) {
                     const data = snap.data();
-                    setDailyQuote({
-                        text: data.text,
-                        author: data.author
-                    });
+                    const quote = { text: data.text || "", author: data.author || "" };
+                    setDailyQuote(quote);
+                    localStorage.setItem("dailyQuote", JSON.stringify(quote));
+                    localStorage.setItem("quote_date", today);
                 }
-
-                if (user) {
-                    const savedSnap = await getDocs(
-                        collection(db, "users", user.uid, "savedQuotes")
-                    );
-
-                    const quotes: SavedQuote[] = [];
-
-                    savedSnap.forEach((d) => {
-                        const data = d.data();
-                        quotes.push({
-                            text: data.text,
-                            date: d.id
-                        });
-                    });
-
-                    quotes.sort((a, b) => b.date.localeCompare(a.date));
-
-                    setSavedQuotes(quotes);
-                } else {
-                    setSavedQuotes([]);
-                }
-
             } catch (err) {
-                console.error("Failed to load quotes:", err);
+                console.error("Error fetching daily quote:", err);
             } finally {
-                setLoading(false);
+                setQuoteLoading(false);
             }
         };
 
-        fetchData();
-    }, [user]);
+        fetchDailyQuote();
+    }, [today]);
+
+    useEffect(() => {
+        if (authLoading) return;
+
+        if (!user) {
+            setSavedQuotes([]);
+            setSavedQuotesLoading(false);
+            return;
+        }
+
+        const fetchSavedQuotes = async () => {
+            try {
+                setSavedQuotesLoading(true);
+                const savedSnap = await getDocs(
+                    collection(db, "users", user.uid, "savedQuotes")
+                );
+
+                const quotes: SavedQuote[] = [];
+                savedSnap.forEach((d) => {
+                    const data = d.data();
+                    quotes.push({
+                        text: data.text || "",
+                        author: data.author || "Anonymous",
+                        date: d.id
+                    });
+                });
+
+                quotes.sort((a, b) => b.date.localeCompare(a.date));
+                setSavedQuotes(quotes);
+            } catch (err) {
+                console.error("Error fetching saved quotes:", err);
+            } finally {
+                setSavedQuotesLoading(false);
+            }
+        };
+
+        fetchSavedQuotes();
+    }, [user, authLoading]);
+
+    const addSavedQuote = (newQuote: SavedQuote) => {
+        setSavedQuotes((prev) => {
+            if (prev.some((q) => q.date === newQuote.date)) return prev;
+            const updated = [newQuote, ...prev];
+            return updated.sort((a, b) => b.date.localeCompare(a.date));
+        });
+    };
+
+    const removeSavedQuote = (dateId: string) => {
+        setSavedQuotes((prev) => prev.filter((q) => q.date !== dateId));
+    };
+
+    const globalLoading = quoteLoading || authLoading || savedQuotesLoading;
 
     return (
-        <QuoteContext.Provider
-            value={{ dailyQuote, savedQuotes, loading, user }}
-        >
+        <QuoteContext.Provider value={{ dailyQuote, savedQuotes, loading: globalLoading, addSavedQuote, removeSavedQuote }}>
             {children}
         </QuoteContext.Provider>
     );

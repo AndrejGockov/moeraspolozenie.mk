@@ -13,15 +13,15 @@ const getAuthErrorMessage = (error: any) => {
     const code = error?.code;
 
     switch (code) {
-        case "Auth/invalid-credential":
+        case "auth/invalid-credential":
             return "Incorrect email or password";
-        case "Auth/user-not-found":
+        case "auth/user-not-found":
             return "No account found with this email";
-        case "Auth/wrong-password":
+        case "auth/wrong-password":
             return "Incorrect password";
-        case "Auth/too-many-requests":
+        case "auth/too-many-requests":
             return "Too many attempts. Try again later";
-        case "Auth/invalid-email":
+        case "auth/invalid-email":
             return "Invalid email format";
         default:
             return "Something went wrong. Please try again";

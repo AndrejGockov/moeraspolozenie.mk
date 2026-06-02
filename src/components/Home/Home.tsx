@@ -10,11 +10,20 @@ export function Home() {
     return (
         <div className="home-container">
             <h1 className="home-title">
-                Welcome back, <br/>{user?.displayName ? `${user.displayName}` : ""}
+                {user ? (
+                    <>
+                        Welcome back, <br />
+                        {user.displayName || ""}
+                    </>
+                ) : (
+                    <>
+                        Your daily breather starts here 🌱
+                    </>
+                )}
             </h1>
 
             <p className="home-subtitle">
-                Check how you are doing today so you can keep up your mental health!
+                Check how you are doing today so you can keep up with your mental health!
             </p>
 
             <button

@@ -46,7 +46,7 @@ export function Login() {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            navigate("/dashboard", { replace: true });
+            navigate("/", { replace: true });
         } catch (err: any) {
             setError(getAuthErrorMessage(err));
         }
@@ -56,7 +56,7 @@ export function Login() {
         try {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
-            navigate("/dashboard", { replace: true });
+            navigate("/", { replace: true });
         } catch (err: any) {
             setError(getAuthErrorMessage(err));
         }

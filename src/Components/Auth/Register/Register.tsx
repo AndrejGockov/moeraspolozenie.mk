@@ -54,7 +54,7 @@ export function Register() {
                 displayName: username
             });
 
-            navigate("/dashboard", { replace: true });
+            navigate("/", { replace: true });
         } catch (err: any) {
             setError(getRegisterErrorMessage(err));
         }
@@ -64,7 +64,7 @@ export function Register() {
         try {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
-            navigate("/dashboard", { replace: true });
+            navigate("/", { replace: true });
         } catch (err: any) {
             setError(getRegisterErrorMessage(err));
         }

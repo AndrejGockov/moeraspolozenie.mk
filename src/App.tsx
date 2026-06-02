@@ -1,17 +1,18 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import { Navbar } from './components/Navbar/Navbar';
-import { Login } from "./components/Auth/Login/Login";
-import { Register } from "./components/Auth/Register/Register";
-import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute';
-import { Quote } from './components/Quote/Quote';
+import { Navbar } from './Components/Navbar/Navbar';
+import { Login } from "./Components/Auth/Login/Login";
+import { Register } from "./Components/Auth/Register/Register";
+import { ProtectedRoute } from './Components/ProtectedRoute/ProtectedRoute';
+import { Quote } from './Components/Quote/Quote';
 import { QuoteProvider } from './Context/QuoteContext';
-import { ResetPassword } from "./components/Auth/ResetPassword/ResetPassword";
-import { DailyQuiz } from "./components/DailyQuiz/DailyQuiz";
-import { QuizCompleted } from "./components/DailyQuiz/QuizCompleted";
-import { Dashboard } from "./components/Dashboard/Dashboard";
-import { Home } from "./components/Home/Home";
+import { ResetPassword } from "./Components/Auth/ResetPassword/ResetPassword";
+import { DailyQuiz } from "./Components/DailyQuiz/DailyQuiz";
+import { QuizCompleted } from "./Components/DailyQuiz/QuizCompleted";
+import { Dashboard } from "./Components/Dashboard/Dashboard";
+import { Home } from "./Components/Home/Home";
+import { Footer } from "./Components/Footer/Footer";
 
 function App() {
     return (
@@ -45,6 +46,7 @@ function App() {
                             <Route path="/reset-password" element={<ResetPassword />} />
                         </Routes>
                     </main>
+                    <Footer />
                 </div>
             </Router>
         </QuoteProvider>

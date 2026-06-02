@@ -18,6 +18,7 @@ export function Quote() {
     const [saved, setSaved] = useState(false);
     const hasQuote = dailyQuote?.text && dailyQuote?.author;
     const today = new Date().toISOString().split("T")[0];
+    const user = auth.currentUser;
 
     useEffect(() => {
         const checkSaved = async () => {
@@ -70,7 +71,7 @@ export function Quote() {
     return (
         <div className="quote-container">
             <div className="quote-glass-card">
-                <div className="quote-badge">Today's Focus</div>
+                <div className="quote-badge">Daily Quote</div>
 
                 {loading && (
                     <div className="quote-skeleton">
@@ -107,11 +108,13 @@ export function Quote() {
                             disabled={saving || saved}
                             className="save-quote-btn"
                         >
-                            {saved
-                                ? "Already saved"
-                                : saving
-                                    ? "Saving..."
-                                    : "Click to save this quote"}
+                            {!user
+                                ? "Login to save today's quote!"
+                                : saved
+                                    ? "Saved to dashboard"
+                                    : saving
+                                        ? "Saving..."
+                                        : "Save today's quote!"}
                         </button>
                     </div>
                 )}

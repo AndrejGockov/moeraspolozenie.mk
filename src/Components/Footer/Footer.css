@@ -1,0 +1,33 @@
+.footer {
+    width: 100%;
+    padding: 1.5rem 1rem;
+
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-sizing: border-box;
+}
+
+.footer-content {
+    text-align: center;
+}
+
+.footer-content h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #1f2937;
+}
+
+.footer-tagline {
+    margin: 0.5rem 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.footer-content small {
+    color: #9ca3af;
+}

@@ -127,7 +127,7 @@ export function Dashboard() {
                             fontWeight: 600
                         }}
                     >
-                        Saved Quotes
+                        My Saved Quotes
                     </button>
                 </div>
 
@@ -136,7 +136,7 @@ export function Dashboard() {
 
                     {tab === "stats" && (
                         <div>
-                            <h2>Your Statistics</h2>
+                            <h2>Mood Quiz Statistics</h2>
 
                             <div
                                 style={{

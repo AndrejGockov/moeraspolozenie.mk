@@ -57,7 +57,7 @@ export function QuizCompleted() {
     if (!data) {
         return (
             <div style={{ textAlign: "center", marginTop: 80 }}>
-                <h2>No quiz data found.</h2>
+                <h2>Loading quiz data...</h2>
             </div>
         );
     }

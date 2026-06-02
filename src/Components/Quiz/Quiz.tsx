@@ -40,7 +40,7 @@ export function Quiz() {
             });
 
             // 1. Initialize the SDK with your API key
-            const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+            const ai = new GoogleGenAI({ apiKey: process.env.REACT_APP_GEMINI_API_KEY });
 
             let recommendation = "Take a short breathing break and rest your mind today."; // Friendly fallback
 

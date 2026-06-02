@@ -15,14 +15,22 @@ export function Dashboard() {
     const [localQuotes, setLocalQuotes] = useState<any[]>([]);
     const isFetched = useRef(false);
     const [modal, setModal] = useState<{ open: boolean; id: string; text: string; author: string }>({ open: false, id: "", text: "", author: "" });
+    const [searchQuery, setSearchQuery] = useState("");
 
-
+    const filteredQuotes = localQuotes.filter((q) => {
+        const query = searchQuery.toLowerCase();
+        const textMatches = q.text?.toLowerCase().includes(query);
+        const authorMatches = q.author?.toLowerCase().includes(query);
+        return textMatches || authorMatches;
+    });
 
     useEffect(() => {
         if (savedQuotes) {
             setLocalQuotes(savedQuotes);
         }
     }, [savedQuotes]);
+
+
 
     useEffect(() => {
         if (authLoading || !user || isFetched.current) return;
@@ -197,31 +205,54 @@ export function Dashboard() {
 
                     {tab === "quotes" && (
                         <div>
-                            <h2 style={{ fontSize: 20, marginBottom: 16 }}>Your Saved Quotes:</h2>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, flexWrap: "wrap", gap: 12 }}>
+                                <h2 style={{ fontSize: 20, margin: 0, fontWeight: 600, color: "#1a1a1a" }}>
+                                    Your Saved Quotes
+                                    <span style={{ fontSize: 14, color: "#777", fontWeight: 400, marginLeft: 8 }}>
+                    ({filteredQuotes.length} {filteredQuotes.length === 1 ? "quote" : "quotes"} found)
+                </span>
+                                </h2>
+
+                                {localQuotes.length > 0 && (
+                                    <input
+                                        type="text"
+                                        placeholder="Search quotes or authors..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 14, width: "100%", maxWidth: 280, outline: "none", boxSizing: "border-box" }}
+                                    />
+                                )}
+                            </div>
+
                             {quotesLoading && localQuotes.length === 0 ? (
-                                <p style={{ color: "#777" }}>Loading saved dashboard entries...</p>
+                                <p style={{ color: "#777", textAlign: "left" }}>Loading saved dashboard entries...</p>
                             ) : localQuotes.length > 0 ? (
-                                <div style={{ display: "grid", gap: 16 }}>
-                                    {localQuotes.map((q, idx) => (
-                                        <div key={q.date || q.id || idx} style={{ padding: 16, border: "1px solid #eee", borderRadius: 12, background: "#fafafa", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                            <div style={{ paddingRight: 20, textAlign: "left" }}>
-                                                <p style={{ margin: "0 0 6px 0", fontStyle: "italic", fontSize: 15 }}>"{q.text}"</p>
-                                                <small style={{ color: "#666", fontWeight: 600 }}>— {q.author || "Anonymous"}</small>
+                                filteredQuotes.length > 0 ? (
+                                    <div style={{ display: "grid", gap: 16 }}>
+                                        {filteredQuotes.map((q, idx) => (
+                                            <div key={q.date || q.id || idx} style={{ padding: 16, border: "1px solid #eee", borderRadius: 12, background: "#fafafa", display: "flex", justifyContent: "space-between", alignItems: "center", boxSizing: "border-box" }}>
+                                                <div style={{ paddingRight: 20, textAlign: "left" }}>
+                                                    <p style={{ margin: "0 0 6px 0", fontStyle: "italic", fontSize: 15, color: "#2d3748" }}>"{q.text}"</p>
+                                                    <small style={{ color: "#4a5568", fontWeight: 600 }}>— {q.author || "Anonymous"}</small>
+                                                </div>
+                                                <button
+                                                    onClick={() => setModal({ open: true, id: q.date || q.id || "", text: q.text, author: q.author || "Anonymous" })}
+                                                    style={{ background: "#ff4d4f", color: "white", border: "none", padding: "6px 12px", borderRadius: 6, cursor: "pointer", fontWeight: 600, fontSize: 13, flexShrink: 0 }}
+                                                >
+                                                    Remove
+                                                </button>
                                             </div>
-                                            <button
-                                                onClick={() => setModal({ open: true, id: q.date || q.id || "", text: q.text, author: q.author || "Anonymous" })}
-                                                style={{ background: "#ff4d4f", color: "white", border: "none", padding: "6px 12px", borderRadius: 6, cursor: "pointer", fontWeight: 600, fontSize: 13 }}
-                                            >
-                                                Remove
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p style={{ color: "#777", textAlign: "left", marginTop: 20 }}>No quotes match your search term.</p>
+                                )
                             ) : (
-                                <p style={{ color: "#777" }}>You haven't saved any quotes to your dashboard yet.</p>
+                                <p style={{ color: "#777", textAlign: "left" }}>You haven't saved any quotes to your dashboard yet.</p>
                             )}
                         </div>
                     )}
+
 
                     {tab === "history" && (
                         <div>

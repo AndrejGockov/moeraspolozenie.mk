@@ -61,13 +61,18 @@ export function Dashboard() {
         setQuotes((prev) => prev.filter((q) => q.id !== id));
     };
 
-    const scores = quizData.map((q) => q.avgScore || 0);
+    const scores = quizData
+        .map((q) => q.avgScore)
+        .filter((v): v is number => typeof v === "number");
 
-    const avg =
-        scores.reduce((a, b) => a + b, 0) / (scores.length || 1);
+    const hasScores = scores.length > 0;
 
-    const lowest = scores.length ? Math.min(...scores) : 0;
-    const highest = scores.length ? Math.max(...scores) : 0;
+    const avg = hasScores
+        ? scores.reduce((a, b) => a + b, 0) / scores.length
+        : null;
+
+    const lowest = hasScores ? Math.min(...scores) : null;
+    const highest = hasScores ? Math.max(...scores) : null;
 
     const sad = scores.filter(s => s <= 2).length;
     const neutral = scores.filter(s => s > 2 && s < 4).length;
@@ -167,49 +172,47 @@ export function Dashboard() {
                     {/* STATS */}
                     {tab === "stats" && (
                         <div>
-                            <h2>Mood quiz statistics charts:</h2>
+                            <h2>Mood quiz statistics:</h2>
 
-                            <div style={{
-                                display: "grid",
-                                gridTemplateColumns: "320px 1fr 1fr",
-                                gap: 30,
-                                alignItems: "center",
-                                marginTop: 20
-                            }}>
-                                <div style={{ width: 320, height: 320 }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        {hasData ? (
+                            {hasData ? (
+                                <div style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "320px 1fr 1fr",
+                                    gap: 30,
+                                    alignItems: "center",
+                                    marginTop: 20
+                                }}>
+                                    <div style={{ width: 320, height: 320 }}>
+                                        <ResponsiveContainer width="100%" height="100%">
                                             <PieChart>
                                                 <Pie
                                                     data={pieData}
                                                     dataKey="value"
                                                     nameKey="name"
                                                     outerRadius={110}
-                                                    paddingAngle={0}
-                                                    label={false}
                                                     stroke="none"
                                                 />
                                             </PieChart>
-                                        ) : (
-                                            <p style={{ textAlign: "center", color: "#777" }}>
-                                                No mood data yet
-                                            </p>
-                                        )}
-                                    </ResponsiveContainer>
-                                </div>
+                                        </ResponsiveContainer>
+                                    </div>
 
-                                <div style={{ fontSize: 14 }}>
-                                    <p>🟢 Happy days</p>
-                                    <p>🟠 Neutral days</p>
-                                    <p>🔴 Depressed days</p>
-                                </div>
+                                    <div style={{ fontSize: 14 }}>
+                                        <p>🟢 Happy days</p>
+                                        <p>🟠 Neutral days</p>
+                                        <p>🔴 Depressed days</p>
+                                    </div>
 
-                                <div style={{ lineHeight: 2 }}>
-                                    <p>All time average: {avg.toFixed(2)}</p>
-                                    <p>Lowest score: {lowest}</p>
-                                    <p>Highest score: {highest}</p>
+                                    <div style={{ lineHeight: 2 }}>
+                                        <p>All time average: {(avg as number)?.toFixed(2)}</p>
+                                        <p>Lowest score: {lowest}</p>
+                                        <p>Highest score: {highest}</p>
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <p style={{ color: "#777", marginTop: 20 }}>
+                                    No mood data yet, take the daily quiz to start tracking your mood chart!
+                                </p>
+                            )}
                         </div>
                     )}
 

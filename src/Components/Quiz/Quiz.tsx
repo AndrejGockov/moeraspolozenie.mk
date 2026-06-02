@@ -8,6 +8,7 @@ import { calculateAverageScore } from "../../utils/avgHappiness";
 import { getRecommendation } from "../../utils/recommendation";
 import { QUESTIONS } from "../../utils/questions";
 import { SCALE_LABELS } from "../../utils/scale";
+import { GoogleGenAI } from '@google/genai';
 
 export function Quiz() {
     const navigate = useNavigate();
@@ -31,29 +32,50 @@ export function Quiz() {
             setSubmitting(true);
 
             const avg = calculateAverageScore(answers);
-            const recommendation = getRecommendation(avg);
             const today = new Date().toISOString().split("T")[0];
+
+            let quizSummaryString = "";
+            answers.forEach((val, i) => {
+                quizSummaryString += `Statement: "${QUESTIONS[i]}" - Response score: ${val}/5.\n`;
+            });
+
+            // 1. Initialize the SDK with your API key
+            const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+            let recommendation = "Take a short breathing break and rest your mind today."; // Friendly fallback
+
+            try {
+                // 2. Call the API using the official SDK wrapper (Fixes CORS!)
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: `You are an empathetic wellness companion app AI. Analyze these daily mood quiz answers (scored 1 to 5, where 1 means strongly disagree and 5 means strongly agree):\n\n${quizSummaryString}\n\nProvide a single unified recommendation string (maximum 3 short sentences) highlighting an area I struggled with today and offering one simple, actionable self-care tip. Do not use clinical, scary, or medical jargon. Speak directly to me.`,
+                });
+
+                if (response.text) {
+                    recommendation = response.text.trim();
+                }
+            } catch (apiErr) {
+                // If Google blocks the client-side key for security, it logs here
+                console.error("SDK Request failed, using fallback text:", apiErr);
+            }
 
             const quizPayload = {
                 answers: answers.map((value, i) => ({ question: QUESTIONS[i], value })),
                 avgScore: avg,
-                recommendation
+                recommendation,
             };
 
+            // 3. Save the result down to your Firestore database
             await setDoc(doc(db, "users", user.uid, "dailyQuizzes", today), {
-                answers: answers.map((value, i) => ({
-                    question: QUESTIONS[i],
-                    value
-                })),
-                avgScore: avg,
-                recommendation,
+                ...quizPayload,
                 createdAt: serverTimestamp()
             });
 
             localStorage.setItem(`quiz_${today}`, JSON.stringify(quizPayload));
+
             navigate("/quiz/completed");
         } catch (err) {
-            console.error("Failed to save quiz results:", err);
+            console.error("Failed to process daily wellness quiz summary:", err);
             alert("Something went wrong saving your quiz. Please try again.");
         } finally {
             setSubmitting(false);

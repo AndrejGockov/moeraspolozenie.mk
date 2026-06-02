@@ -11,6 +11,7 @@ export function Navbar() {
     const [checkingQuiz, setCheckingQuiz] = useState(false);
     const navigate = useNavigate();
 
+
     const handleQuizClick = async () => {
         if (!user) {
             navigate("/login");

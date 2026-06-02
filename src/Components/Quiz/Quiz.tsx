@@ -4,25 +4,16 @@ import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { calculateAverageScore } from "../../utils/avgHappiness";
 import { getRecommendation } from "../../utils/recommendation";
+import { QUESTIONS } from "../../utils/questions";
+import { SCALE_LABELS } from "../../utils/scale";
 
-export function DailyQuiz() {
+
+export function Quiz() {
     const navigate = useNavigate();
 
     const [checking, setChecking] = useState(true);
     const [answers, setAnswers] = useState<number[]>(Array(10).fill(0));
 
-    const questions = [
-        "Денес се чувствував среќно:",
-        "Денес бев продуктивен/на:",
-        "Имав доволно енергија денес:",
-        "Се чувствував мотивирано:",
-        "Добро се справив со стресот денес:",
-        "Се чувствував поврзан/а со другарите:",
-        "Се грижев за себе денес:",
-        "Се чувствував позитивно:",
-        "Бев задоволен/на од денот:",
-        "Се чувствувам надежно за утре:"
-    ];
 
     useEffect(() => {
         const checkToday = async () => {
@@ -65,7 +56,10 @@ export function DailyQuiz() {
         const today = new Date().toISOString().split("T")[0];
 
         await setDoc(doc(db, "users", user.uid, "dailyQuizzes", today), {
-            answers,
+            answers: answers.map((value, i) => ({
+                question: QUESTIONS[i],
+                value
+            })),
             avgScore: avg,
             recommendation,
             createdAt: serverTimestamp()
@@ -76,11 +70,10 @@ export function DailyQuiz() {
 
     const isComplete = answers.every((a) => a > 0);
 
-    // 🔥 LOADING STATE (fixes flicker + UX)
     if (checking) {
         return (
             <div style={{ padding: 20, textAlign: "center" }}>
-                Се проверува дали веќе сте го пополниле квизот...
+                Checking if you have already completed today's quiz...
             </div>
         );
     }
@@ -94,7 +87,7 @@ export function DailyQuiz() {
                 fontFamily: "system-ui, sans-serif"
             }}
         >
-            <h1 style={{ marginBottom: 10 }}>Квиз за задоволство</h1>
+            <h1 style={{ marginBottom: 10 }}>Daily Mood Quiz</h1>
 
             {/* SCALE */}
             <div
@@ -107,15 +100,13 @@ export function DailyQuiz() {
                     gap: 4
                 }}
             >
-                <div>Изберете одговор за секое прашање:</div>
-                <div>1 = Воопшто не се согласувам</div>
-                <div>2 = Не се согласувам</div>
-                <div>3 = Неутрално</div>
-                <div>4 = Се согласувам</div>
-                <div>5 = Потполно се согласувам</div>
+                <div>Choose how much you agree with each statement:</div>
+                {SCALE_LABELS.map((l, i) => (
+                    <div key={i}>{l}</div>
+                ))}
             </div>
 
-            {questions.map((q, i) => (
+            {QUESTIONS.map((q, i) => (
                 <div
                     key={i}
                     style={{

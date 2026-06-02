@@ -1,24 +1,24 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase";
+import { useAuth } from "../../hooks/useAuth";
 import "./Home.css";
 
 export function Home() {
     const navigate = useNavigate();
-    const user = auth.currentUser;
+    const { user, loading } = useAuth();
 
     return (
         <div className="home-container">
             <h1 className="home-title">
-                {user ? (
+                {loading ? (
+                    ""
+                ) : user ? (
                     <>
                         Welcome back! <br />
                         {user.displayName || ""}
                     </>
                 ) : (
-                    <>
-                        Your daily breather starts now!
-                    </>
+                    <>Your daily breather starts now!</>
                 )}
             </h1>
 

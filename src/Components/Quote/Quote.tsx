@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuotes } from "../../Context/QuoteContext";
+import { useAuth } from "../../hooks/useAuth";
 import "./Quote.css";
 
-import { auth, db } from "../../firebase";
+import { db } from "../../firebase";
 import {
     doc,
     setDoc,
@@ -14,33 +15,33 @@ import {
 export function Quote() {
     const navigate = useNavigate();
     const { dailyQuote, loading } = useQuotes();
+    const { user } = useAuth();
+
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [checkingSaved, setCheckingSaved] = useState(true);
+
     const hasQuote = dailyQuote?.text && dailyQuote?.author;
     const today = new Date().toISOString().split("T")[0];
-    const user = auth.currentUser;
 
     useEffect(() => {
-        const checkSaved = async () => {
-            const user = auth.currentUser;
-            if (!user) return;
+        if (!user?.uid) {
+            setCheckingSaved(false);
+            return;
+        }
 
+        const checkSaved = async () => {
             const ref = doc(db, "users", user.uid, "savedQuotes", today);
             const snap = await getDoc(ref);
 
-            if (snap.exists()) {
-                setSaved(true);
-            } else {
-                setSaved(false);
-            }
+            setSaved(snap.exists());
+            setCheckingSaved(false);
         };
 
         checkSaved();
-    }, [today]);
+    }, [user?.uid, today]);
 
     const saveQuote = async () => {
-        const user = auth.currentUser;
-
         if (!user) {
             navigate("/login");
             return;
@@ -102,10 +103,15 @@ export function Quote() {
                             </cite>
                         </blockquote>
 
-                        {/* SAVE BUTTON */}
+                        {checkingSaved && (
+                            <p style={{ color: "#777", fontSize: 13 }}>
+                                Checking saved status...
+                            </p>
+                        )}
+
                         <button
                             onClick={saveQuote}
-                            disabled={saving || saved}
+                            disabled={saving || saved || checkingSaved}
                             className="save-quote-btn"
                         >
                             {!user

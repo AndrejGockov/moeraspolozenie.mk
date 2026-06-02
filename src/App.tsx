@@ -8,8 +8,8 @@ import { ProtectedRoute } from './Components/ProtectedRoute/ProtectedRoute';
 import { Quote } from './Components/Quote/Quote';
 import { QuoteProvider } from './Context/QuoteContext';
 import { ResetPassword } from "./Components/Auth/ResetPassword/ResetPassword";
-import { DailyQuiz } from "./Components/DailyQuiz/DailyQuiz";
-import { QuizCompleted } from "./Components/DailyQuiz/QuizCompleted";
+import { Quiz } from "./Components/Quiz/Quiz";
+import { QuizCompleted } from "./Components/Quiz/QuizCompleted";
 import { Dashboard } from "./Components/Dashboard/Dashboard";
 import { Home } from "./Components/Home/Home";
 import { Footer } from "./Components/Footer/Footer";
@@ -37,7 +37,7 @@ function App() {
                                 path="/quiz"
                                 element={
                                     <ProtectedRoute>
-                                        <DailyQuiz />
+                                        <Quiz />
                                     </ProtectedRoute>
                                 }
                             />

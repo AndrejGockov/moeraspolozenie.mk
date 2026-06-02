@@ -2,23 +2,18 @@ import React, { useState } from "react";
 import {
     signInWithEmailAndPassword,
     signInWithPopup,
-    GoogleAuthProvider,
-    sendPasswordResetEmail
+    GoogleAuthProvider
 } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { auth } from "../../../firebase";
 import "../Auth.css";
 
 const getAuthErrorMessage = (error: any) => {
-    const code = error?.code;
-
-    switch (code) {
+    switch (error?.code) {
         case "auth/invalid-credential":
             return "Incorrect email or password";
         case "auth/user-not-found":
             return "No account found with this email";
-        case "auth/wrong-password":
-            return "Incorrect password";
         case "auth/too-many-requests":
             return "Too many attempts. Try again later";
         case "auth/invalid-email":
@@ -32,7 +27,6 @@ export function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const [resetMsg, setResetMsg] = useState("");
 
     const navigate = useNavigate();
 
@@ -67,7 +61,6 @@ export function Login() {
             <h1>Log in to your account</h1>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
-            {resetMsg && <p style={{ color: "green" }}>{resetMsg}</p>}
 
             <form className="log" onSubmit={handleLogin}>
                 <input

@@ -1,5 +1,23 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
-import { getFirestore, doc, getDoc, collection, getDocs } from "firebase/firestore";
+import React, {
+    createContext,
+    useState,
+    useEffect,
+    useContext
+} from "react";
+
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    collection,
+    getDocs
+} from "firebase/firestore";
+
+import {
+    onAuthStateChanged,
+    type User
+} from "firebase/auth";
+
 import { app, auth } from "../firebase";
 
 const db = getFirestore(app);
@@ -18,6 +36,7 @@ type QuoteContextType = {
     dailyQuote: Quote;
     savedQuotes: SavedQuote[];
     loading: boolean;
+    user: User | null;
 };
 
 const QuoteContext = createContext<QuoteContextType | null>(null);
@@ -29,14 +48,22 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
     });
 
     const [savedQuotes, setSavedQuotes] = useState<SavedQuote[]>([]);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const unsub = onAuthStateChanged(auth, (u) => {
+            setUser(u);
+        });
+
+        return () => unsub();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const user = auth.currentUser;
+                setLoading(true);
 
-                // 1. GLOBAL DAILY QUOTE
                 const snap = await getDoc(doc(db, "quotes", "daily"));
 
                 if (snap.exists()) {
@@ -47,7 +74,6 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
                     });
                 }
 
-                // 2. USER SAVED QUOTES
                 if (user) {
                     const savedSnap = await getDocs(
                         collection(db, "users", user.uid, "savedQuotes")
@@ -55,18 +81,19 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
 
                     const quotes: SavedQuote[] = [];
 
-                    savedSnap.forEach((doc) => {
-                        const data = doc.data();
+                    savedSnap.forEach((d) => {
+                        const data = d.data();
                         quotes.push({
                             text: data.text,
-                            date: doc.id
+                            date: d.id
                         });
                     });
 
-                    // newest first
                     quotes.sort((a, b) => b.date.localeCompare(a.date));
 
                     setSavedQuotes(quotes);
+                } else {
+                    setSavedQuotes([]);
                 }
 
             } catch (err) {
@@ -77,10 +104,12 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
         };
 
         fetchData();
-    }, []);
+    }, [user]);
 
     return (
-        <QuoteContext.Provider value={{ dailyQuote, savedQuotes, loading }}>
+        <QuoteContext.Provider
+            value={{ dailyQuote, savedQuotes, loading, user }}
+        >
             {children}
         </QuoteContext.Provider>
     );

@@ -3,6 +3,10 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../../firebase";
 import "../Auth.css";
 
+const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 export function ResetPassword() {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
@@ -17,13 +21,30 @@ export function ResetPassword() {
             return;
         }
 
+        if (!isValidEmail(email)) {
+            setError("Please enter a valid email address");
+            return;
+        }
+
         try {
             await sendPasswordResetEmail(auth, email);
-            console.log("Reset email sent to:", email);
-            setMessage("Check your email (and spam folder)");
+
+            setMessage("If this email exists, a reset link has been sent.");
         } catch (err: any) {
-            console.error(err);
-            setError(err.message);
+            const code = err?.code;
+
+            switch (code) {
+                case "auth/user-not-found":
+                    setMessage("If this email exists, a reset link has been sent.");
+                    break;
+
+                case "auth/invalid-email":
+                    setError("Invalid email format");
+                    break;
+
+                default:
+                    setError("Something went wrong. Try again.");
+            }
         }
     };
 
@@ -37,6 +58,7 @@ export function ResetPassword() {
             <input
                 type="email"
                 placeholder="Enter your email"
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
             />
 

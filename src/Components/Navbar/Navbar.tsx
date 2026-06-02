@@ -8,28 +8,28 @@ import { hasCompletedQuizToday } from "../../utils/quizComplete";
 export function Navbar() {
     const [user, setUser] = useState<User | null>(null);
     const [checkingQuiz, setCheckingQuiz] = useState(false);
+    const [loadingAuth, setLoadingAuth] = useState(true);
+
     const navigate = useNavigate();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
+            setLoadingAuth(false);
         });
 
         return () => unsubscribe();
     }, []);
 
-
     const handleQuizClick = async () => {
-        const currentUser = auth.currentUser;
-
-        if (!currentUser) {
+        if (!user) {
             navigate("/login");
             return;
         }
 
         setCheckingQuiz(true);
 
-        const done = await hasCompletedQuizToday(currentUser.uid);
+        const done = await hasCompletedQuizToday(user.uid);
 
         setCheckingQuiz(false);
 
@@ -51,7 +51,6 @@ export function Navbar() {
                     </Link>
 
                     <ul className="nav-menu">
-
                         <li>
                             <button className="nav-item" onClick={() => navigate("/")}>
                                 Home
@@ -80,12 +79,11 @@ export function Navbar() {
                                 Today's Quote
                             </button>
                         </li>
-
                     </ul>
                 </div>
 
                 <div className="nav-right-group">
-                    {user ? (
+                    {loadingAuth ? null : user ? (
                         <div className="user-profile-zone">
                             <span className="welcome-user">
                                 Hi, {user.displayName || "User"}

@@ -4,7 +4,6 @@ import { useAuth } from "../../hooks/useAuth";
 import "./Home.css";
 import { FunFact } from "../FunFact/FunFact";
 
-
 export function Home() {
     const navigate = useNavigate();
     const { user, loading } = useAuth();
@@ -49,7 +48,7 @@ export function Home() {
     };
 
     const handleCtaClick = () => {
-        if (loading) return; // Block clicks while auth is resolving
+        if (loading) return;
         if (user) {
             navigate("/quiz");
         } else {
@@ -67,11 +66,10 @@ export function Home() {
                 Check how well you're doing today and keep up your mental health ❤️
             </p>
 
-            {/* 🎯 Updated button: text stays fixed, spinner shows conditionally */}
             <button
                 className={`home-cta-btn ${loading ? "btn-loading" : ""}`}
                 onClick={handleCtaClick}
-                disabled={loading && !cachedName} // Only completely disable if we have zero cached data
+                disabled={loading && !cachedName}
             >
                 {loading && !cachedName ? (
                     <span className="btn-spinner"></span>
@@ -82,15 +80,15 @@ export function Home() {
                 )}
             </button>
 
-            <FunFact />
-
-            {/*<div className="home-insight-card">*/}
-            {/*    <h3>Why you should join us?</h3>*/}
-            {/*    <p>*/}
-            {/*        Even if you aren't a teenager, checking in with yourself develops your <b>emotional intelligence</b>, helping you recognize why you're feeling bad today.*/}
-            {/*        Even a short daily 5-minute self-inspection test can help you with your <b>mood</b>, <b>awareness</b> and your overall day to day <b>well-being</b>!*/}
-            {/*    </p>*/}
-            {/*</div>*/}
+            <div className="home-fun-fact">
+                <p>
+                    <strong>Fun fact: </strong>
+                    <FunFact />
+                </p>
+                <span className="fact-source-footer">
+                    By HBSC about teens in North Macedonia
+                </span>
+            </div>
         </div>
     );
 }

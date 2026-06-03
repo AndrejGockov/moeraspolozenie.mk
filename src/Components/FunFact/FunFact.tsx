@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+// Cleaned array with zero duplicates
 const hbscFacts = [
     "87% of children in North Macedonia live with both parents, showing strong family structures among youth.",
     "Teens in North Macedonia use electronic media for daily communication at nearly double the international average (boys 45%, girls 42% vs. avg. 26%/29%).",
@@ -25,7 +26,12 @@ const hbscFacts = [
     "18% of boys and 16% of girls in North Macedonia have been called hurtful names at school.",
     "57% of boys and 73% of girls in North Macedonia report feeling supported by their friends.",
     "Teens with higher family income in North Macedonia are significantly more likely to be physically active daily.",
-    "Daily breakfast consumption is highest among 13-year-old boys (65%) and 11-year-old girls (69%) in North Macedonia — but drops sharply with age."
+    "Daily breakfast consumption is highest among 13-year-old boys (65%) and 11-year-old girls (69%) in North Macedonia — but drops sharply with age.",
+    "Feelings of a heavy academic workload and pressure from school assignments sit drastically above general European averages.",
+    "School attachment drops over time for local youth, falling by 16% for boys and 14% for girls over a twelve-year tracking period.",
+    "15-year-old girls face high internal rates of social exclusion, push-backs, and isolation by peers within local school environments.",
+    "Daily screen time from traditional TVs and DVDs dropped by 10% between 2006 and 2014, replaced entirely by a migration to smartphones and laptops.",
+    "Despite intense daily digital messaging frequencies, spending quality time fully offline remains the primary source of emotional fulfillment for local youth."
 ];
 
 export function FunFact() {
@@ -36,10 +42,6 @@ export function FunFact() {
         setFunFact(randomFact);
     }, []);
 
-    return (
-        <div className="home-fun-fact">
-            <h3>Fun psychology fact by HBSC about teens in North Macedonia:</h3>
-            <p>{funFact}</p>
-        </div>
-    );
+    // Returns inline text so it snaps directly adjacent to your bolded "Fun fact: " in Home.js
+    return <>{funFact}</>;
 }

@@ -49,7 +49,7 @@ export function Navbar() {
             <div className="nav-container">
                 <div className="nav-left-group">
                     <Link to="/" className="nav-logo">
-                        MoeZadovolstvo<span>.mk</span>
+                        MoeRaspolozenie<span>.mk</span>
                     </Link>
 
                     <ul className="nav-menu">

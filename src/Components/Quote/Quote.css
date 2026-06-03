@@ -20,6 +20,7 @@
     text-align: center;
     box-sizing: border-box;
     position: relative;
+    overflow: visible !important;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -187,52 +188,59 @@
     cursor: not-allowed;
 }
 
-.quote-glass-card {
-    position: relative;
-    overflow: visible !important;
-}
-
+/* Updated Circular Glass Card Bookmark Button Container */
 .bookmark-btn {
     position: absolute;
     top: 0;
     right: 0;
+    transform: translate(-50%, -50%);
 
-    /* Changed from 10% to -15% to shift it further to the left.
-       Now it sits squarely centered right over the top-right corner radius intersection. */
-    transform: translate(-15%, -50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
 
-    background: transparent;
-    border: none;
-    cursor: pointer;
+    /* Change this to a guaranteed solid white color block */
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Slightly deepened shadow for contrast */
+
     padding: 0;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #94a3b8;
-    transition: transform 0.2s ease, color 0.2s ease;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     outline: none;
     z-index: 50;
 }
 
-/* Updated hover state to match the new alignment position */
+/* Make sure the active/saved states also enforce the solid backing */
 .bookmark-btn:hover:not(:disabled) {
-    transform: translate(-15%, -50%) scale(1.15);
+    transform: translate(-50%, -50%) scale(1.1);
+    background-color: #f1f5f9 !important; /* Solid light gray on hover */
+    border-color: #cbd5e1;
     color: #3b82f6;
 }
 
 .bookmark-btn.is-saved {
     color: #2563eb;
+    background-color: #ffffff !important;
+    border-color: #bfdbfe;
 }
 
 .bookmark-btn.is-saved:hover:not(:disabled) {
     color: #1d4ed8;
+    background-color: #eff6ff;
+    border-color: #93c5fd;
 }
 
 .bookmark-btn:disabled {
     opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .bookmark-icon {
-    width: 36px;
-    height: 36px;
+    width: 25px;
+    height: 25px;
 }

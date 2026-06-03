@@ -118,6 +118,10 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
 
     const removeSavedQuote = (dateId: string) => {
         setSavedQuotes((prev) => prev.filter((q) => q.date !== dateId));
+        if (user?.uid) {
+            const cacheKey = `savedQuote_${user.uid}_${dateId}`;
+            localStorage.removeItem(cacheKey);
+        }
     };
 
     const globalLoading = quoteLoading || authLoading || savedQuotesLoading;

@@ -3,25 +3,29 @@ import { useNavigate } from "react-router-dom";
 import { useQuotes } from "../../Context/QuoteContext";
 import { useAuth } from "../../hooks/useAuth";
 import "./Quote.css";
+import { BookmarkIcon } from "../BookmarkIcon/BookmarkIcon";
 
 import { db } from "../../firebase";
 import {
     doc,
     setDoc,
+    deleteDoc, // Added deleteDoc
     getDoc,
     serverTimestamp
 } from "firebase/firestore";
 
 export function Quote() {
     const navigate = useNavigate();
-    const { dailyQuote, loading: quoteLoading, addSavedQuote } = useQuotes();
+    // Assuming useQuotes context might have a removeSavedQuote,
+    // but we can handle local state even if it doesn't.
+    const { dailyQuote, loading: quoteLoading, addSavedQuote, removeSavedQuote } = useQuotes();
     const { user, loading: authLoading } = useAuth();
 
     const today = new Date().toISOString().split("T")[0];
     const cacheKey = user ? `savedQuote_${user.uid}_${today}` : null;
 
     const [saved, setSaved] = useState(false);
-    const [saving, setSaving] = useState(false);
+    const [loadingAction, setLoadingAction] = useState(false); // Combined saving/deleting state
     const [syncing, setSyncing] = useState(false);
 
     const hasQuote = dailyQuote?.text && dailyQuote?.author;
@@ -59,61 +63,86 @@ export function Quote() {
         sync();
     }, [user?.uid, today, cacheKey, syncing]);
 
-    const saveQuote = async () => {
+    const handleBookmarkToggle = async () => {
         if (!user) {
             navigate("/login");
             return;
         }
 
-        if (!hasQuote) return;
+        if (!hasQuote || loadingAction) return;
 
-        setSaved(true);
-        setSaving(true);
+        const docRef = doc(db, "users", user.uid, "savedQuotes", today);
+        const previousSavedState = saved;
 
+        // Optimistic UI updates
+        setSaved(!previousSavedState);
+        setLoadingAction(true);
         if (cacheKey) {
-            localStorage.setItem(cacheKey, "true");
+            localStorage.setItem(cacheKey, String(!previousSavedState));
         }
 
         try {
-            await setDoc(
-                doc(db, "users", user.uid, "savedQuotes", today),
-                {
+            if (!previousSavedState) {
+                await setDoc(docRef, {
                     text: dailyQuote.text,
                     author: dailyQuote.author,
                     createdAt: serverTimestamp()
-                }
-            );
+                });
 
-            addSavedQuote({
-                text: dailyQuote.text,
-                author: dailyQuote.author,
-                date: today
-            });
+                if (typeof addSavedQuote === "function") {
+                    addSavedQuote({
+                        text: dailyQuote.text,
+                        author: dailyQuote.author,
+                        date: today
+                    });
+                }
+            } else {
+                await deleteDoc(docRef);
+
+                if (typeof removeSavedQuote === "function") {
+                    removeSavedQuote(today);
+                }
+            }
         } catch (err) {
-            console.error(err);
-            setSaved(false);
+            console.error("Error toggling bookmark:", err);
+            setSaved(previousSavedState);
             if (cacheKey) {
-                localStorage.setItem(cacheKey, "false");
+                localStorage.setItem(cacheKey, String(previousSavedState));
             }
         } finally {
-            setSaving(false);
+            setLoadingAction(false);
         }
     };
 
-    const getButtonText = () => {
-        if (saving) return "Saving...";
-        if (saved) return "Saved to dashboard";
+    const isGlobalLoading = quoteLoading;
+
+    const getTooltipText = () => {
+        if (loadingAction) return "Processing...";
+        if (saved) return "Remove bookmark";
         if (authLoading) return "Loading...";
         if (!user) return "Login to save today's quote!";
         return "Save today's quote!";
     };
 
-    const isGlobalLoading = quoteLoading;
-
     return (
         <div className="quote-container">
             <div className="quote-glass-card">
                 <div className="quote-badge">Daily Quote</div>
+
+                {!isGlobalLoading && hasQuote && (
+                    <button
+                        onClick={handleBookmarkToggle}
+                        disabled={loadingAction || authLoading}
+                        className={`bookmark-btn ${saved ? "is-saved" : ""}`}
+                        title={getTooltipText()}
+                        aria-label={getTooltipText()}
+                    >
+                        <BookmarkIcon
+                            filled={saved}
+                            className="bookmark-icon"
+                        />
+                    </button>
+                )}
 
                 {isGlobalLoading && (
                     <div className="quote-skeleton">
@@ -134,14 +163,6 @@ export function Quote() {
                                 — {dailyQuote.author}
                             </cite>
                         </blockquote>
-
-                        <button
-                            onClick={saveQuote}
-                            disabled={saving || saved}
-                            className="save-quote-btn"
-                        >
-                            {getButtonText()}
-                        </button>
                     </div>
                 )}
             </div>

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import "./Home.css";
+import { FunFact } from "../FunFact/FunFact";
+
 
 export function Home() {
     const navigate = useNavigate();
@@ -80,22 +82,15 @@ export function Home() {
                 )}
             </button>
 
-            <div className="home-fun-fact">
-                <h3>Fun fact about teen psychology:</h3>
-                <p>
-                    <b>Teenagers</b> experience more emotional fluctuations than regular adults,
-                    their brains are still developing their emotional regulation regions.
-                    Taking <b>short daily check-in breaks</b> develops your self-awareness and calms you down, improving your <b>mental health</b>.
-                </p>
-            </div>
+            <FunFact />
 
-            <div className="home-insight-card">
-                <h3>Why you should join us?</h3>
-                <p>
-                    Even if you aren't a teenager, checking in with yourself develops your <b>emotional intelligence</b>, helping you recognize why you're feeling bad today.
-                    Even a short daily 5-minute self-inspection test can help you with your <b>mood</b>, <b>awareness</b> and your overall day to day <b>well-being</b>!
-                </p>
-            </div>
+            {/*<div className="home-insight-card">*/}
+            {/*    <h3>Why you should join us?</h3>*/}
+            {/*    <p>*/}
+            {/*        Even if you aren't a teenager, checking in with yourself develops your <b>emotional intelligence</b>, helping you recognize why you're feeling bad today.*/}
+            {/*        Even a short daily 5-minute self-inspection test can help you with your <b>mood</b>, <b>awareness</b> and your overall day to day <b>well-being</b>!*/}
+            {/*    </p>*/}
+            {/*</div>*/}
         </div>
     );
 }

@@ -48,7 +48,7 @@ export function Quiz() {
                 // 2. Call the API using the official SDK wrapper (Fixes CORS!)
                 const response = await ai.models.generateContent({
                     model: 'gemini-2.5-flash',
-                    contents: `You are an empathetic wellness companion app AI. Analyze these daily mood quiz answers (scored 1 to 5, where 1 means strongly disagree and 5 means strongly agree):\n\n${quizSummaryString}\n\nProvide a single unified recommendation string (maximum 3 short sentences) highlighting an area I struggled with today and offering one simple, actionable self-care tip. Do not use clinical, scary, or medical jargon. Speak directly to me.`,
+                    contents: `You are an empathetic wellness companion app AI. Analyze these daily mood quiz answers (scored 1 to 6, where 1 means strongly disagree and 6 means strongly agree):\n\n${quizSummaryString}\n\nProvide a single unified recommendation string (maximum 3 short sentences) highlighting an area I struggled with today and offering one simple, actionable self-care tip. Do not use clinical, scary, or medical jargon. Speak directly to me.`,
                 });
 
                 if (response.text) {
@@ -88,13 +88,45 @@ export function Quiz() {
     return (
         <div
             style={{
-                maxWidth: 650,
-                margin: "0 auto",
-                padding: 20,
-                fontFamily: "system-ui, sans-serif"
+                maxWidth: 1280,
+                margin: "40px auto",
+                padding: "0 20px",
+                fontFamily: "system-ui, sans-serif",
             }}
         >
-            <h1 style={{ marginBottom: 10 }}>Daily Mood Quiz</h1>
+            <div
+                style={{
+                    background: "white",
+                    borderRadius: 20,
+                    padding: 32,
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                }}
+            >
+                <div style={{ marginBottom: 32 }}>
+                    <h1
+                        style={{
+                            margin: 0,
+                            fontSize: 32,
+                            fontWeight: 700,
+                            color: "#1f2937",
+                            textAlign: "center"
+                        }}
+                    >
+                        Daily Mood Check-In
+                    </h1>
+
+                    <p
+                        style={{
+                            marginTop: 10,
+                            color: "#6b7280",
+                            fontSize: 15,
+                            lineHeight: 1.6,
+                            textAlign: "center"
+                        }}
+                    >
+                        Answer each statement based on how you've felt today.
+                    </p>
+                </div>
 
             <div
                 style={{
@@ -106,10 +138,30 @@ export function Quiz() {
                     gap: 4
                 }}
             >
-                <div>Choose how much you agree with each statement:</div>
-                {SCALE_LABELS.map((l, i) => (
-                    <div key={i}>{l}</div>
-                ))}
+                <div style={{textAlign: "center"}}>Choose how much you agree with each statement:</div>
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: 12,
+                        marginTop: 12,
+                        fontSize: 13,
+                    }}
+                >
+                    {SCALE_LABELS.map((label, i) => (
+                        <span
+                            key={i}
+                            style={{
+                                background: "#f3f4f6",
+                                padding: "6px 12px",
+                                borderRadius: 999,
+                            }}
+                        >
+            {label}
+        </span>
+                    ))}
+                </div>
             </div>
 
             {QUESTIONS.map((q, i) => (
@@ -123,22 +175,44 @@ export function Quiz() {
                         background: "#fafafa"
                     }}
                 >
-                    <p style={{ fontSize: 17, fontWeight: 600, marginBottom: 12 }}>
+                    <p
+                        style={{
+                            fontSize: 18,
+                            fontWeight: 600,
+                            marginBottom: 18,
+                            textAlign: "center",
+                            color: "#1f2937",
+                        }}
+                    >
                         {q}
                     </p>
 
-                    <div style={{ display: "flex", gap: 10 }}>
-                        {[1, 2, 3, 4, 5].map((num) => (
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: 14,
+                            marginTop: 18,
+                        }}
+                    >
+                        {[1, 2, 3, 4, 5, 6].map((num) => (
                             <button
                                 key={num}
                                 type="button"
                                 onClick={() => handleSelect(i, num)}
                                 style={{
-                                    width: 44,
-                                    height: 44,
+                                    width: 48,
+                                    height: 48,
                                     borderRadius: 10,
                                     border: "1px solid #ddd",
-                                    background: answers[i] === num ? "#007bff" : "white",
+                                    background:
+                                        answers[i] === num
+                                            ? num <= 2
+                                                ? "#ff4d4f"
+                                                : num === 3 || num === 4
+                                                    ? "#faad14"
+                                                    : "#52c41a"
+                                            : "white",
                                     color: answers[i] === num ? "white" : "#333",
                                     cursor: "pointer",
                                     fontWeight: 600,
@@ -152,25 +226,27 @@ export function Quiz() {
                 </div>
             ))}
 
-            <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isButtonDisabled}
-                style={{
-                    width: "100%",
-                    padding: 14,
-                    marginTop: 10,
-                    background: isButtonDisabled ? "#ccc" : "#007bff",
-                    color: "white",
-                    border: "none",
-                    borderRadius: 10,
-                    cursor: isButtonDisabled ? "not-allowed" : "pointer",
-                    fontWeight: 600,
-                    fontSize: 15
-                }}
-            >
-                {submitting ? "Submitting..." : "Submit"}
-            </button>
-        </div>
+                <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isButtonDisabled}
+                    style={{
+                        width: "100%",
+                        maxWidth: 320,
+                        margin: "24px auto 0",
+                        display: "block",
+                        padding: "16px 20px",
+                        borderRadius: 14,
+                        fontSize: 16,
+                        fontWeight: 700,
+                        border: "none",
+                        background: isButtonDisabled ? "#d1d5db" : "#2563eb",
+                        color: "white",
+                        cursor: isButtonDisabled ? "not-allowed" : "pointer",
+                    }}
+                >
+                    {submitting ? "Analyzing your responses..." : "Complete Check-In"}
+                </button>
+            </div></div>
     );
 }

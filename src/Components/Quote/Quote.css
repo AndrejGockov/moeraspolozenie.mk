@@ -186,3 +186,53 @@
     background: #ccc;
     cursor: not-allowed;
 }
+
+.quote-glass-card {
+    position: relative;
+    overflow: visible !important;
+}
+
+.bookmark-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    /* Changed from 10% to -15% to shift it further to the left.
+       Now it sits squarely centered right over the top-right corner radius intersection. */
+    transform: translate(-15%, -50%);
+
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    transition: transform 0.2s ease, color 0.2s ease;
+    outline: none;
+    z-index: 50;
+}
+
+/* Updated hover state to match the new alignment position */
+.bookmark-btn:hover:not(:disabled) {
+    transform: translate(-15%, -50%) scale(1.15);
+    color: #3b82f6;
+}
+
+.bookmark-btn.is-saved {
+    color: #2563eb;
+}
+
+.bookmark-btn.is-saved:hover:not(:disabled) {
+    color: #1d4ed8;
+}
+
+.bookmark-btn:disabled {
+    opacity: 0.6;
+}
+
+.bookmark-icon {
+    width: 36px;
+    height: 36px;
+}

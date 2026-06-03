@@ -6,6 +6,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useQuotes } from "../../Context/QuoteContext";
 import { Pagination } from "../Pagination/Pagination";
 import { BookmarkIcon } from "../BookmarkIcon/BookmarkIcon";
+import { StreakStats } from "../StreakStats/StreakStats";
 
 
 export function Dashboard() {
@@ -263,7 +264,7 @@ export function Dashboard() {
                                         <p style={{ margin: 0 }}>All time average: <b style={{ color: "#007bff" }}>{avg.toFixed(2)} / 5</b></p>
                                         <p style={{ margin: 0 }}>Highest quiz score: <b>{highest}</b></p>
                                         <p style={{ margin: 0 }}>Lowest quiz score: <b>{lowest}</b></p>
-                                        <p style={{ margin: 0 }}>Total tests taken: <b>{quizData.length}</b></p>
+                                        {/*<p style={{ margin: 0 }}>Total tests taken: <b>{quizData.length}</b></p>*/}
                                     </div>
 
                                     <div
@@ -281,6 +282,7 @@ export function Dashboard() {
                                         <span style={{ color: "#ffa940" }}>● Neutral Days: {neutral}</span>
                                         <span style={{ color: "#ff4d4f" }}>● Sad Days: {sad}</span>
                                     </div>
+                                    <StreakStats quizzes={quizData} />
                                 </div>
                             ) : (
                                 <p style={{ color: "#777", textAlign: "left" }}>No mood data yet. Take the daily quiz to start tracking your mood charts!</p>

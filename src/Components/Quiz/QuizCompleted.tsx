@@ -78,7 +78,7 @@ export function QuizCompleted() {
             >
                 <h2>
                     Mood score:<br />
-                    {isLoadingData ? "..." : `${data.avgScore} / 5`}
+                    {isLoadingData ? "..." : `${data.avgScore} / 6`}
                 </h2>
 
                 <p style={{ fontSize: 16, marginBottom: 15 }}>
@@ -99,7 +99,7 @@ export function QuizCompleted() {
                 </div>
 
                 <p style={{ marginTop: 25, color: "#666" }}>
-                    Come back soon!
+                    Come back once the quiz opens!
                 </p>
             </div>
         </div>

@@ -5,7 +5,7 @@ export function Footer() {
         <footer className="footer">
             <div className="footer-content">
                  <small>
-                    © {new Date().getFullYear()} MoeZadovolstvo.mk
+                    © {new Date().getFullYear()} MoeRaspolozenie.mk
                 </small>
             </div>
         </footer>

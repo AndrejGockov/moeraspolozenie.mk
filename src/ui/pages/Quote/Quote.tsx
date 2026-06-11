@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuotes } from "../../Context/QuoteContext";
-import { useAuth } from "../../hooks/useAuth";
+import { useQuotes } from "../../../context/QuoteContext";
+import { useAuth } from "../../../hooks/useAuth";
 import "./Quote.css";
-import { BookmarkIcon } from "../BookmarkButton/BookmarkIcon";
+import { BookmarkIcon } from "../../components/BookmarkButton/BookmarkIcon";
 
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 import { doc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
 export function Quote() {

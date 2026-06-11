@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import { auth } from "../../firebase";
-import { useAuth } from "../../hooks/useAuth";
+import { auth } from "../../../firebase";
+import { useAuth } from "../../../hooks/useAuth";
 import "./Navbar.css";
-import { hasCompletedQuizToday } from "../../utils/quizComplete";
+import { hasCompletedQuizToday } from "../../../utils/quizComplete";
 
 export function Navbar() {
     const { user, loading } = useAuth();

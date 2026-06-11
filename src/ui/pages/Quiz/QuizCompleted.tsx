@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase";
-import { useAuth } from "../../hooks/useAuth";
+import { db } from "../../../firebase";
+import { useAuth } from "../../../hooks/useAuth";
 
 function getTimeUntilMidnight() {
     const now = new Date();

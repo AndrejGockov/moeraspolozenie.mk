@@ -1,8 +1,8 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../../hooks/useAuth";
 
 export function QuizGuard({ children }: { children: ReactNode }) {
     const { user, loading: authLoading } = useAuth();

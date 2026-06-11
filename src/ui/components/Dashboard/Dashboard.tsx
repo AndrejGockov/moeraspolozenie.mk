@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { useAuth } from "../../hooks/useAuth";
-import { useQuotes } from "../../Context/QuoteContext";
+import { useAuth } from "../../../hooks/useAuth";
+import { useQuotes } from "../../../context/QuoteContext";
 import { Pagination } from "../Pagination/Pagination";
 import "./Dashboard.css";
 import { BookmarkButton } from "../BookmarkButton/BookmarkButton";

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 import { doc, deleteDoc } from "firebase/firestore";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../../hooks/useAuth";
 
 interface DeleteQuotePromptProps {
     isOpen: boolean;

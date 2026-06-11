@@ -1,21 +1,21 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import { Navbar } from './Components/Navbar/Navbar';
-import { Login } from "./Components/Auth/Login/Login";
-import { Register } from "./Components/Auth/Register/Register";
-import { ProtectedRoute } from './Components/ProtectedRoute/ProtectedRoute';
-import { PublicRoute } from "./Components/PublicRoute/PublicRoute";
-import { Quote } from './Components/Quote/Quote';
-import { QuoteProvider } from './Context/QuoteContext';
-import { ResetPassword } from "./Components/Auth/ResetPassword/ResetPassword";
-import { Quiz } from "./Components/Quiz/Quiz";
-import { QuizCompleted } from "./Components/Quiz/QuizCompleted";
-import { Dashboard } from "./Components/Dashboard/Dashboard";
-import { Home } from "./Components/Home/Home";
-import { Footer } from "./Components/Footer/Footer";
+import { Navbar } from './ui/components/Navbar/Navbar';
+import { Login } from "./ui/pages/Auth/Login/Login";
+import { Register } from "./ui/pages/Auth/Register/Register";
+import { ProtectedRoute } from './ui/components/ProtectedRoute/ProtectedRoute';
+import { PublicRoute } from "./ui/components/PublicRoute/PublicRoute";
+import { Quote } from './ui/pages/Quote/Quote';
+import { QuoteProvider } from './context/QuoteContext';
+import { ResetPassword } from "./ui/pages/Auth/ResetPassword/ResetPassword";
+import { Quiz } from "./ui/pages/Quiz/Quiz";
+import { QuizCompleted } from "./ui/pages/Quiz/QuizCompleted";
+import { Dashboard } from "./ui/components/Dashboard/Dashboard";
+import { Home } from "./ui/pages/Home/Home";
+import { Footer } from "./ui/components/Footer/Footer";
 import { AuthProvider } from "./hooks/useAuth";
-import { QuizGuard } from "./Components/Quiz/QuizGuard";
+import { QuizGuard } from "./ui/pages/Quiz/QuizGuard";
 
 function App() {
     return (

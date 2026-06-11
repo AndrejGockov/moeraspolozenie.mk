@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebase";
-import { useAuth } from "../../hooks/useAuth";
+import { db } from "../../../firebase";
+import { useAuth } from "../../../hooks/useAuth";
 
-import { calculateAverageScore } from "../../utils/avgHappiness";
-import { getRecommendation } from "../../utils/recommendation";
-import { QUESTIONS } from "../../utils/questions";
-import { SCALE_LABELS } from "../../utils/scale";
+import { calculateAverageScore } from "../../../utils/avgHappiness";
+import { getRecommendation } from "../../../utils/recommendation";
+import { QUESTIONS } from "../../../utils/questions";
+import { SCALE_LABELS } from "../../../utils/scale";
 import { GoogleGenAI } from '@google/genai';
 
 export function Quiz() {

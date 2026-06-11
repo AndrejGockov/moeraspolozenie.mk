@@ -4,7 +4,7 @@ import { useStreakMetrics } from "../../../hooks/useStreakMetrics";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Pagination } from "../../components/Pagination/Pagination";
 import { BookmarkButton } from "../../components/Quote/BookmarkButton";
-import { DeleteQuotePrompt } from "./DeleteQuotePrompt";
+import { DeleteQuotePrompt } from "../../components/Dashboard/DeleteQuotePrompt";
 import "./Dashboard.css";
 
 export function Dashboard() {

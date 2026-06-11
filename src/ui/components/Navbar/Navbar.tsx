@@ -60,7 +60,7 @@ export function Navbar() {
                         </li>
                         <li>
                             <button className="nav-item" onClick={() => navigate("/dashboard")}>
-                                My Dashboard
+                                Dashboard
                             </button>
                         </li>
                         <li>
@@ -70,7 +70,7 @@ export function Navbar() {
                                 disabled={checkingQuiz}
                                 style={{ opacity: checkingQuiz ? 0.6 : 1 }}
                             >
-                                Daily Mood Quiz
+                                Daily Quiz
                             </button>
                         </li>
                         <li>

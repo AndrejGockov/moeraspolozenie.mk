@@ -41,13 +41,13 @@ export function Dashboard() {
 
                 <div className="tab-group">
                     <button onClick={() => data.setTab("stats")} className={`tab-button ${data.tab === "stats" ? "active" : ""}`}>
-                        Mood Statistics
+                        Overview
                     </button>
                     <button onClick={() => data.setTab("quotes")} className={`tab-button ${data.tab === "quotes" ? "active" : ""}`}>
                         Saved Quotes
                     </button>
                     <button onClick={() => data.setTab("history")} className={`tab-button ${data.tab === "history" ? "active" : ""}`}>
-                        Quiz History
+                        History
                     </button>
                 </div>
 

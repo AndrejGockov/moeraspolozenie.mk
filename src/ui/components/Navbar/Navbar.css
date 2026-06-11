@@ -21,12 +21,12 @@
     max-width: 1200px;
     padding: 0 24px;
     box-sizing: border-box;
+    position: relative;
 }
 
 .nav-left-group {
     display: flex;
     align-items: center;
-    gap: 40px;
 }
 
 .nav-logo {
@@ -41,6 +41,15 @@
     color: #007bff;
 }
 
+/* Combines navigation list and right authentication section for flexible layout scaling */
+.nav-responsive-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-grow: 1;
+    margin-left: 40px;
+}
+
 .nav-menu {
     display: flex;
     align-items: center;
@@ -48,17 +57,6 @@
     gap: 24px;
     margin: 0;
     padding: 0;
-}
-
-.nav-item {
-    color: #5a5a5a;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.nav-item:hover {
-    color: #007bff;
 }
 
 .nav-right-group {
@@ -123,40 +121,139 @@
     background-color: #bd2130;
 }
 
+/* Button Reset Overrides for .nav-menu */
 .nav-menu button.nav-item {
     all: unset;
-    display: inline;
     color: #5a5a5a !important;
     cursor: pointer;
     font: inherit;
+    font-weight: 500;
+    transition: color 0.2s ease;
 }
 
-/* kill ALL button states */
 .nav-menu button.nav-item:hover,
 .nav-menu button.nav-item:active,
 .nav-menu button.nav-item:focus,
 .nav-menu button.nav-item:focus-visible {
     color: #007bff !important;
     outline: none;
-}
-
-.nav-menu button.nav-item:focus {
-    outline: none;
     box-shadow: none;
-}
-
-.nav-menu button.nav-item {
-    all: unset;
-    color: #5a5a5a;
-    cursor: pointer;
-    font: inherit;
-}
-
-.nav-menu button.nav-item:hover {
-    color: #007bff;
 }
 
 .nav-menu button.nav-item:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* Hamburger Toggle UI styling (Hidden on desktop by default) */
+.nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+}
+
+.hamburger-bar {
+    width: 100%;
+    height: 2px;
+    background-color: #1a1a1a;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: left center;
+}
+
+/* Mobile Layout Transformations rules */
+@media screen and (max-width: 868px) {
+    .nav-hamburger {
+        display: flex;
+    }
+
+    /* Transform hamburger into an 'X' icon when open */
+    .nav-hamburger.open .hamburger-bar:nth-child(1) {
+        transform: rotate(45deg) scaleX(1.1);
+    }
+
+    .nav-hamburger.open .hamburger-bar:nth-child(2) {
+        opacity: 0;
+    }
+
+    .nav-hamburger.open .hamburger-bar:nth-child(3) {
+        transform: rotate(-45deg) scaleX(1.1);
+    }
+
+    /* Converts your wrapper panel into a responsive drop-down menu layer */
+    .nav-responsive-wrapper {
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background-color: #ffffff;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        margin-left: 0;
+        padding: 24px;
+        box-sizing: border-box;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+        border-top: 1px solid #f0f0f0;
+        gap: 32px;
+
+        /* Smooth height animations visibility controls */
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease, opacity 0.25s ease;
+        z-index: 1000;
+    }
+
+    .nav-responsive-wrapper.active {
+        max-height: 80vh;
+        opacity: 1;
+        overflow-y: auto;
+    }
+
+    .nav-menu {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        width: 100%;
+    }
+
+    .nav-menu li {
+        width: 100%;
+    }
+
+    .nav-menu button.nav-item {
+        display: block;
+        width: 100%;
+        padding: 8px 0;
+        font-size: 1.1rem;
+    }
+
+    .nav-right-group {
+        width: 100%;
+        padding-top: 16px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .auth-actions,
+    .user-profile-zone {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        text-align: center;
+    }
+
+    .nav-btn,
+    .logout-btn {
+        text-align: center;
+        padding: 12px;
+        font-size: 1rem;
+    }
 }

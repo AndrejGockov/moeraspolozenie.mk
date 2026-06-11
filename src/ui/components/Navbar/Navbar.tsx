@@ -9,11 +9,12 @@ import { hasCompletedQuizToday } from "../../../utils/quizComplete";
 export function Navbar() {
     const { user, loading } = useAuth();
     const [checkingQuiz, setCheckingQuiz] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
-
 
     const handleQuizClick = async () => {
         if (!user) {
+            setIsMenuOpen(false);
             navigate("/login");
             return;
         }
@@ -21,8 +22,14 @@ export function Navbar() {
         setCheckingQuiz(true);
         const done = await hasCompletedQuizToday(user.uid);
         setCheckingQuiz(false);
+        setIsMenuOpen(false);
 
         navigate(done ? "/quiz/completed" : "/quiz");
+    };
+
+    const handleNavigation = (path: string) => {
+        setIsMenuOpen(false);
+        navigate(path);
     };
 
     const handleLogout = async () => {
@@ -37,6 +44,7 @@ export function Navbar() {
                 localStorage.removeItem(`savedQuote_${user.uid}_${today}`);
             }
 
+            setIsMenuOpen(false);
             await signOut(auth);
             navigate("/");
         } catch (err) {
@@ -48,18 +56,32 @@ export function Navbar() {
         <nav className="navbar">
             <div className="nav-container">
                 <div className="nav-left-group">
-                    <Link to="/" className="nav-logo">
+                    <Link to="/" className="nav-logo" onClick={() => setIsMenuOpen(false)}>
                         MoeRaspolozenie<span>.mk</span>
                     </Link>
+                </div>
 
+                {/* Hamburger Toggle Button */}
+                <button
+                    className={`nav-hamburger ${isMenuOpen ? "open" : ""}`}
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    aria-label="Toggle navigation menu"
+                >
+                    <span className="hamburger-bar"></span>
+                    <span className="hamburger-bar"></span>
+                    <span className="hamburger-bar"></span>
+                </button>
+
+                {/* Main Navigation Drawer */}
+                <div className={`nav-responsive-wrapper ${isMenuOpen ? "active" : ""}`}>
                     <ul className="nav-menu">
                         <li>
-                            <button className="nav-item" onClick={() => navigate("/")}>
+                            <button className="nav-item" onClick={() => handleNavigation("/")}>
                                 Home
                             </button>
                         </li>
                         <li>
-                            <button className="nav-item" onClick={() => navigate("/dashboard")}>
+                            <button className="nav-item" onClick={() => handleNavigation("/dashboard")}>
                                 Dashboard
                             </button>
                         </li>
@@ -74,33 +96,33 @@ export function Navbar() {
                             </button>
                         </li>
                         <li>
-                            <button className="nav-item" onClick={() => navigate("/quote")}>
+                            <button className="nav-item" onClick={() => handleNavigation("/quote")}>
                                 Today's Quote
                             </button>
                         </li>
                     </ul>
-                </div>
 
-                <div className="nav-right-group">
-                    {loading ? null : user ? (
-                        <div className="user-profile-zone">
-                            <span className="welcome-user">
-                                Hi, {user.displayName || "User"}
-                            </span>
-                            <button onClick={handleLogout} className="logout-btn">
-                                Log Out
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="auth-actions">
-                            <Link to="/login" className="nav-link-btn">
-                                Login
-                            </Link>
-                            <Link to="/register" className="nav-btn">
-                                Register
-                            </Link>
-                        </div>
-                    )}
+                    <div className="nav-right-group">
+                        {loading ? null : user ? (
+                            <div className="user-profile-zone">
+                                <span className="welcome-user">
+                                    Hi, {user.displayName || "User"}
+                                </span>
+                                <button onClick={handleLogout} className="logout-btn">
+                                    Log Out
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="auth-actions">
+                                <Link to="/login" className="nav-link-btn" onClick={() => setIsMenuOpen(false)}>
+                                    Login
+                                </Link>
+                                <Link to="/register" className="nav-btn" onClick={() => setIsMenuOpen(false)}>
+                                    Register
+                                </Link>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </nav>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import "./Home.css";
-import { FunFact } from "../../components/FunFact/FunFact";
+import { FunFact } from "../../components/Home/FunFact";
 
 export function Home() {
     const navigate = useNavigate();

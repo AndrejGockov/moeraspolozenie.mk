@@ -3,7 +3,7 @@ import { useDashboardData } from "../../../hooks/useDashboardData";
 import { useStreakMetrics } from "../../../hooks/useStreakMetrics";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Pagination } from "../../components/Pagination/Pagination";
-import { BookmarkButton } from "../../components/BookmarkButton/BookmarkButton";
+import { BookmarkButton } from "../../components/Quote/BookmarkButton";
 import { DeleteQuotePrompt } from "./DeleteQuotePrompt";
 import "./Dashboard.css";
 

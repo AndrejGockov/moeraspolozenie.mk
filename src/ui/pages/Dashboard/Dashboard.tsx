@@ -1,178 +1,26 @@
-import React, { useEffect, useState, useRef } from "react";
-import { db } from "../../../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import React, { useState } from "react";
+import { useDashboardData } from "../../../hooks/useDashboardData";
+import { useStreakMetrics } from "../../../hooks/useStreakMetrics";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { useAuth } from "../../../hooks/useAuth";
-import { useQuotes } from "../../../context/QuoteContext";
 import { Pagination } from "../../components/Pagination/Pagination";
-import "./Dashboard.css";
 import { BookmarkButton } from "../../components/BookmarkButton/BookmarkButton";
 import { DeleteQuotePrompt } from "./DeleteQuotePrompt";
+import "./Dashboard.css";
 
 export function Dashboard() {
-    const [tab, setTab] = useState<"stats" | "quotes" | "history">("stats");
-    const [quizData, setQuizData] = useState<any[]>([]);
+    const data = useDashboardData();
+    const metrics = useStreakMetrics(data.quizData);
+
     const [expandedQuizId, setExpandedQuizId] = useState<string | null>(null);
-
-    const { user, loading: authLoading } = useAuth();
-    const { savedQuotes, loading: quotesLoading, removeSavedQuote } = useQuotes();
-    const [localQuotes, setLocalQuotes] = useState<any[]>([]);
-    const isFetched = useRef(false);
     const [modal, setModal] = useState<{ open: boolean; id: string; text: string; author: string }>({
-        open: false,
-        id: "",
-        text: "",
-        author: ""
-    });
-    const handleQuoteRemovalFromUI = (idToRemove: string) => {
-        setLocalQuotes((prevQuotes) => prevQuotes.filter(q => (q.date || q.id) !== idToRemove));
-    };
-
-    // Search and filter states
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedDate, setSelectedDate] = useState("");
-    const [timeFilter, setTimeFilter] = useState<"all" | "week" | "month">("all");
-    const [quizSearchQuery, setQuizSearchQuery] = useState("");
-
-    // Pagination states
-    const [currentQuizPage, setCurrentQuizPage] = useState(1);
-    const [currentQuotePage, setCurrentQuotePage] = useState(1);
-    const itemsPerPage = 10;
-
-    useEffect(() => {
-        setCurrentQuizPage(1);
-        setCurrentQuotePage(1);
-    }, [tab]);
-
-    const filteredQuotes = localQuotes.filter((q) => {
-        const query = searchQuery.toLowerCase();
-        return q.text?.toLowerCase().includes(query) || q.author?.toLowerCase().includes(query);
+        open: false, id: "", text: "", author: ""
     });
 
-    const filteredQuizzes = quizData.filter((q) => {
-        const recommendationMatch = !quizSearchQuery || q.recommendation?.toLowerCase().includes(quizSearchQuery.toLowerCase());
-        const quizDate = new Date(q.id);
+    const totalQuizPages = Math.ceil(data.filteredQuizzes.length / data.itemsPerPage);
+    const currentQuizzes = data.filteredQuizzes.slice((data.currentQuizPage - 1) * data.itemsPerPage, data.currentQuizPage * data.itemsPerPage);
 
-        if (selectedDate) {
-            return recommendationMatch && quizDate.toISOString().split("T")[0] === selectedDate;
-        }
-
-        let dateMatch = true;
-        if (timeFilter === "week") {
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            dateMatch = quizDate >= sevenDaysAgo;
-        } else if (timeFilter === "month") {
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            dateMatch = quizDate >= thirtyDaysAgo;
-        }
-
-        return recommendationMatch && dateMatch;
-    });
-
-    useEffect(() => {
-        if (savedQuotes) setLocalQuotes(savedQuotes);
-    }, [savedQuotes]);
-
-    useEffect(() => {
-        if (authLoading || !user || isFetched.current) return;
-
-        const loadQuizHistory = async () => {
-            try {
-                const quizSnap = await getDocs(collection(db, "users", user.uid, "dailyQuizzes"));
-                const quizzes: any[] = [];
-                quizSnap.forEach((d) => {
-                    if (d.exists()) quizzes.push({ id: d.id, ...d.data() });
-                });
-                setQuizData(quizzes);
-                isFetched.current = true;
-            } catch (err) {
-                console.error("Error loading quiz data:", err);
-            }
-        };
-        loadQuizHistory();
-    }, [user, authLoading]);
-
-    const calculateStreaks = () => {
-        if (quizData.length === 0) return { current: 0, max: 0 };
-        const sortedDates = quizData
-            .map(q => q.id)
-            .filter(id => /^\d{4}-\d{2}-\d{2}$/.test(id))
-            .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
-
-        if (sortedDates.length === 0) return { current: 0, max: 0 };
-        const uniqueDates = Array.from(new Set(sortedDates));
-
-        let currentStreak = 0;
-        let maxStreak = 0;
-        let tempStreak = 0;
-
-        const todayStr = new Date().toISOString().split("T")[0];
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split("T")[0];
-
-        if (uniqueDates[0] === todayStr || uniqueDates[0] === yesterdayStr) {
-            let expectedDate = new Date(uniqueDates[0]);
-            for (let i = 0; i < uniqueDates.length; i++) {
-                const currentDate = new Date(uniqueDates[i]);
-                if (Math.ceil(Math.abs(expectedDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)) <= 1) {
-                    currentStreak++;
-                    expectedDate = currentDate;
-                } else {
-                    break;
-                }
-            }
-        }
-
-        let trackDate = new Date(uniqueDates[uniqueDates.length - 1]);
-        for (let i = uniqueDates.length - 1; i >= 0; i--) {
-            const curr = new Date(uniqueDates[i]);
-            if (Math.ceil(Math.abs(curr.getTime() - trackDate.getTime()) / (1000 * 60 * 60 * 24)) <= 1) {
-                tempStreak++;
-                maxStreak = Math.max(maxStreak, tempStreak);
-            } else {
-                tempStreak = 1;
-            }
-            trackDate = curr;
-        }
-        return { current: currentStreak, max: maxStreak };
-    };
-
-    const streak = calculateStreaks();
-
-    const scores = quizData.map((q) => q.avgScore).filter((v): v is number => typeof v === "number");
-    const hasScores = scores.length > 0;
-    const avg = hasScores ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-    const lowest = hasScores ? Math.min(...scores) : 0;
-    const highest = hasScores ? Math.max(...scores) : 0;
-
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const weeklyScores = quizData.filter((q) => new Date(q.id) >= sevenDaysAgo && typeof q.avgScore === "number").map((q) => q.avgScore);
-    const weeklyAvg = weeklyScores.length > 0 ? weeklyScores.reduce((a, b) => a + b, 0) / weeklyScores.length : null;
-
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const monthlyScores = quizData.filter((q) => new Date(q.id) >= thirtyDaysAgo && typeof q.avgScore === "number").map((q) => q.avgScore);
-    const monthlyAvg = monthlyScores.length > 0 ? monthlyScores.reduce((a, b) => a + b, 0) / monthlyScores.length : null;
-
-    const sad = scores.filter(s => s <= 2.5).length;
-    const neutral = scores.filter(s => s > 2.5 && s < 4.5).length;
-    const happy = scores.filter(s => s >= 4.5).length;
-
-    const pieData = [
-        { name: "Sad days", value: sad, fill: "#ff4d4f" },
-        { name: "Neutral days", value: neutral, fill: "#ffa940" },
-        { name: "Happy days", value: happy, fill: "#52c41a" }
-    ].filter(item => item.value > 0);
-
-    const totalQuizPages = Math.ceil(filteredQuizzes.length / itemsPerPage);
-    const currentQuizzes = filteredQuizzes.slice((currentQuizPage - 1) * itemsPerPage, currentQuizPage * itemsPerPage);
-
-    const totalQuotePages = Math.ceil(filteredQuotes.length / itemsPerPage);
-    const currentQuotes = filteredQuotes.slice((currentQuotePage - 1) * itemsPerPage, currentQuotePage * itemsPerPage);
+    const totalQuotePages = Math.ceil(data.filteredQuotes.length / data.itemsPerPage);
+    const currentQuotes = data.filteredQuotes.slice((data.currentQuotePage - 1) * data.itemsPerPage, data.currentQuotePage * data.itemsPerPage);
 
     const getAvgColor = (val: number | null) => {
         if (!val) return "#fa8c16";
@@ -185,36 +33,36 @@ export function Dashboard() {
         <div className="dashboard-container">
             <div className="dashboard-card">
                 <h1 className="dashboard-header">
-                    {user?.displayName || "User"}{" "}
-                    <span className="dashboard-email">({user?.email})</span>
+                    {data.user?.displayName || "User"}{" "}
+                    <span className="dashboard-email">({data.user?.email})</span>
                 </h1>
 
                 <hr className="dashboard-divider" />
 
                 <div className="tab-group">
-                    <button onClick={() => setTab("stats")} className={`tab-button ${tab === "stats" ? "active" : ""}`}>
+                    <button onClick={() => data.setTab("stats")} className={`tab-button ${data.tab === "stats" ? "active" : ""}`}>
                         Mood Statistics
                     </button>
-                    <button onClick={() => setTab("quotes")} className={`tab-button ${tab === "quotes" ? "active" : ""}`}>
+                    <button onClick={() => data.setTab("quotes")} className={`tab-button ${data.tab === "quotes" ? "active" : ""}`}>
                         Saved Quotes
                     </button>
-                    <button onClick={() => setTab("history")} className={`tab-button ${tab === "history" ? "active" : ""}`}>
+                    <button onClick={() => data.setTab("history")} className={`tab-button ${data.tab === "history" ? "active" : ""}`}>
                         Quiz History
                     </button>
                 </div>
 
                 <div className="tab-content">
-                    {tab === "stats" && (
+                    {data.tab === "stats" && (
                         <div>
                             <h2 className="stats-title">Mood quiz statistics:</h2>
-                            {quizData.length > 0 ? (
+                            {data.quizData.length > 0 ? (
                                 <div className="stats-grid">
                                     <div className="chart-wrapper">
                                         <div className="chart-container">
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <PieChart>
-                                                    <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={90} stroke="none">
-                                                        {pieData.map((entry, index) => (
+                                                    <Pie data={metrics.pieData} dataKey="value" nameKey="name" outerRadius={90} stroke="none">
+                                                        {metrics.pieData.map((entry, index) => (
                                                             <Cell key={`cell-${index}`} fill={entry.fill} />
                                                         ))}
                                                     </Pie>
@@ -223,9 +71,9 @@ export function Dashboard() {
                                             </ResponsiveContainer>
                                         </div>
                                         <div className="chart-legend">
-                                            <span className="legend-happy">● Happy Days: {happy}</span>
-                                            <span className="legend-neutral">● Neutral Days: {neutral}</span>
-                                            <span className="legend-sad">● Sad Days: {sad}</span>
+                                            <span className="legend-happy">● Happy Days: {metrics.happy}</span>
+                                            <span className="legend-neutral">● Neutral Days: {metrics.neutral}</span>
+                                            <span className="legend-sad">● Sad Days: {metrics.sad}</span>
                                         </div>
                                     </div>
 
@@ -233,34 +81,34 @@ export function Dashboard() {
                                         <div className="streak-grid-row">
                                             <div className="streak-mini-card">
                                                 <span className="streak-card-label">Your Streak</span>
-                                                <span className="streak-card-value">🔥 {streak.current} days</span>
+                                                <span className="streak-card-value">🔥 {metrics.streak.current} days</span>
                                             </div>
                                             <div className="streak-mini-card">
                                                 <span className="streak-card-label">Longest Streak</span>
-                                                <span className="streak-card-value">🏆 {streak.max} days</span>
+                                                <span className="streak-card-value">🏆 {metrics.streak.max} days</span>
                                             </div>
                                             <div className="streak-mini-card">
                                                 <span className="streak-card-label">Total quizzes</span>
-                                                <span className="streak-card-value">📊 {quizData.length}</span>
+                                                <span className="streak-card-value">📊 {data.quizData.length}</span>
                                             </div>
                                         </div>
 
                                         <div className="stats-card">
                                             <p>
                                                 Weekly average (last 7 days):{" "}
-                                                <b style={{ color: getAvgColor(weeklyAvg) }}>
-                                                    {weeklyAvg ? `${weeklyAvg.toFixed(2)} / 6` : "No logs this week"}
+                                                <b style={{ color: getAvgColor(metrics.weeklyAvg) }}>
+                                                    {metrics.weeklyAvg ? `${metrics.weeklyAvg.toFixed(2)} / 6` : "No logs this week"}
                                                 </b>
                                             </p>
                                             <p>
                                                 Monthly average (30 days):{" "}
-                                                <b style={{ color: getAvgColor(monthlyAvg) }}>
-                                                    {monthlyAvg ? `${monthlyAvg.toFixed(2)} / 6` : "No logs"}
+                                                <b style={{ color: getAvgColor(metrics.monthlyAvg) }}>
+                                                    {metrics.monthlyAvg ? `${metrics.monthlyAvg.toFixed(2)} / 6` : "No logs"}
                                                 </b>
                                             </p>
-                                            <p>All time average: <b style={{ color: "#007bff" }}>{avg.toFixed(2)} / 6</b></p>
-                                            <p>Highest quiz score: <b>{highest.toFixed(1)} / 6</b></p>
-                                            <p>Lowest quiz score: <b>{lowest.toFixed(1)} / 6</b></p>
+                                            <p>All time average: <b style={{ color: "#007bff" }}>{metrics.avg.toFixed(2)} / 6</b></p>
+                                            <p>Highest quiz score: <b>{metrics.highest.toFixed(1)} / 6</b></p>
+                                            <p>Lowest quiz score: <b>{metrics.lowest.toFixed(1)} / 6</b></p>
                                         </div>
                                     </div>
                                 </div>
@@ -270,28 +118,28 @@ export function Dashboard() {
                         </div>
                     )}
 
-                    {tab === "quotes" && (
+                    {data.tab === "quotes" && (
                         <div>
                             <div className="tab-header-row">
                                 <h2 className="tab-header-title">
                                     Your Saved Quotes
-                                    <span className="tab-header-count">({filteredQuotes.length} found)</span>
+                                    <span className="tab-header-count">({data.filteredQuotes.length} found)</span>
                                 </h2>
-                                {localQuotes.length > 0 && (
+                                {data.localQuotes.length > 0 && (
                                     <input
                                         type="text"
                                         placeholder="Search quotes or authors..."
-                                        value={searchQuery}
-                                        onChange={(e) => { setSearchQuery(e.target.value); setCurrentQuotePage(1); }}
+                                        value={data.searchQuery}
+                                        onChange={(e) => { data.setSearchQuery(e.target.value); data.setCurrentQuotePage(1); }}
                                         className="search-input"
                                     />
                                 )}
                             </div>
 
-                            {quotesLoading && localQuotes.length === 0 ? (
+                            {data.quotesLoading && data.localQuotes.length === 0 ? (
                                 <p className="no-data-text">Loading saved dashboard entries...</p>
-                            ) : localQuotes.length > 0 ? (
-                                filteredQuotes.length > 0 ? (
+                            ) : data.localQuotes.length > 0 ? (
+                                data.filteredQuotes.length > 0 ? (
                                     <>
                                         <div className="quotes-list">
                                             {currentQuotes.map((q, idx) => {
@@ -320,7 +168,7 @@ export function Dashboard() {
                                                 );
                                             })}
                                         </div>
-                                        <Pagination currentPage={currentQuotePage} totalPages={totalQuotePages} onPageChange={setCurrentQuotePage} />
+                                        <Pagination currentPage={data.currentQuotePage} totalPages={totalQuotePages} onPageChange={data.setCurrentQuotePage} />
                                     </>
                                 ) : (
                                     <p className="no-data-text">No quotes match your search term.</p>
@@ -331,19 +179,19 @@ export function Dashboard() {
                         </div>
                     )}
 
-                    {tab === "history" && (
+                    {data.tab === "history" && (
                         <div>
                             <div className="tab-header-row">
                                 <h2 className="tab-header-title">
                                     Check-up History
-                                    <span className="tab-header-count">({filteredQuizzes.length} found)</span>
+                                    <span className="tab-header-count">({data.filteredQuizzes.length} found)</span>
                                 </h2>
 
-                                {quizData.length > 0 && (
+                                {data.quizData.length > 0 && (
                                     <div className="history-controls">
                                         <select
-                                            value={timeFilter}
-                                            onChange={(e) => { setTimeFilter(e.target.value as any); setCurrentQuizPage(1); }}
+                                            value={data.timeFilter}
+                                            onChange={(e) => { data.setTimeFilter(e.target.value as any); data.setCurrentQuizPage(1); }}
                                             className="history-select"
                                         >
                                             <option value="all">All Time</option>
@@ -354,23 +202,23 @@ export function Dashboard() {
                                         <input
                                             type="text"
                                             placeholder="Search recommendation..."
-                                            value={quizSearchQuery}
-                                            onChange={(e) => { setQuizSearchQuery(e.target.value); setCurrentQuizPage(1); }}
+                                            value={data.quizSearchQuery}
+                                            onChange={(e) => { data.setQuizSearchQuery(e.target.value); data.setCurrentQuizPage(1); }}
                                             className="history-search"
                                         />
                                         At date:
                                         <input
                                             type="date"
-                                            value={selectedDate}
-                                            onChange={(e) => { setSelectedDate(e.target.value); setTimeFilter("all"); setCurrentQuizPage(1); }}
+                                            value={data.selectedDate}
+                                            onChange={(e) => { data.setSelectedDate(e.target.value); data.setTimeFilter("all"); data.setCurrentQuizPage(1); }}
                                             className="history-date"
                                         />
                                     </div>
                                 )}
                             </div>
 
-                            {quizData.length > 0 ? (
-                                filteredQuizzes.length > 0 ? (
+                            {data.quizData.length > 0 ? (
+                                data.filteredQuizzes.length > 0 ? (
                                     <>
                                         <div className="quiz-list">
                                             {currentQuizzes.map((q) => {
@@ -443,7 +291,7 @@ export function Dashboard() {
                                     <p className="no-data-text">No items match your search details.</p>
                                 )
                             ) : (
-                                <p className="no-data-text"><>No historical data logged yet</>.</p>
+                                <p className="no-data-text">No historical data logged yet.</p>
                             )}
                         </div>
                     )}
@@ -454,8 +302,8 @@ export function Dashboard() {
                 quoteData={modal.open ? { id: modal.id, text: modal.text, author: modal.author } : null}
                 onClose={() => setModal({ open: false, id: "", text: "", author: "" })}
                 onDeleteSuccess={(idToRemove) => {
-                    handleQuoteRemovalFromUI(idToRemove);
-                    removeSavedQuote(idToRemove);
+                    data.handleQuoteRemovalFromUI(idToRemove);
+                    data.removeSavedQuote(idToRemove);
                 }}
             />
         </div>

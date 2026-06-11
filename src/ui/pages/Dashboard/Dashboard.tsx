@@ -4,9 +4,9 @@ import { collection, getDocs } from "firebase/firestore";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useAuth } from "../../../hooks/useAuth";
 import { useQuotes } from "../../../context/QuoteContext";
-import { Pagination } from "../Pagination/Pagination";
+import { Pagination } from "../../components/Pagination/Pagination";
 import "./Dashboard.css";
-import { BookmarkButton } from "../BookmarkButton/BookmarkButton";
+import { BookmarkButton } from "../../components/BookmarkButton/BookmarkButton";
 import { DeleteQuotePrompt } from "./DeleteQuotePrompt";
 
 export function Dashboard() {

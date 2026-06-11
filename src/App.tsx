@@ -11,7 +11,7 @@ import { QuoteProvider } from './context/QuoteContext';
 import { ResetPassword } from "./ui/pages/Auth/ResetPassword/ResetPassword";
 import { Quiz } from "./ui/pages/Quiz/Quiz";
 import { QuizCompleted } from "./ui/pages/Quiz/QuizCompleted";
-import { Dashboard } from "./ui/components/Dashboard/Dashboard";
+import { Dashboard } from "./ui/pages/Dashboard/Dashboard";
 import { Home } from "./ui/pages/Home/Home";
 import { Footer } from "./ui/components/Footer/Footer";
 import { AuthProvider } from "./hooks/useAuth";

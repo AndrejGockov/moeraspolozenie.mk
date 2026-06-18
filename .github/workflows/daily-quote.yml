@@ -19,9 +19,9 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install firebase-admin node-fetch
+        run: npm install firebase-admin node-fetch@2 typescript ts-node @types/node @types/node-fetch
 
       - name: Run script
-        run: node scripts/updateQuote.js
+        run: npx ts-node src/api/updateQuote.ts
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

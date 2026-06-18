@@ -1,7 +1,8 @@
-const admin = require("firebase-admin");
+import * as admin from "firebase-admin";
+import fetch from "node-fetch";
 
 const serviceAccount = JSON.parse(
-    process.env.FIREBASE_SERVICE_ACCOUNT
+    process.env.FIREBASE_SERVICE_ACCOUNT as string
 );
 
 admin.initializeApp({
@@ -10,12 +11,16 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-async function updateQuote() {
+interface ZenQuote {
+    q: string;
+    a: string;
+}
+
+async function updateQuote(): Promise<void> {
     try {
         const res = await fetch("https://zenquotes.io/api/today");
-        const data = await res.json();
+        const data = await res.json() as ZenQuote[];
 
-        // ZenQuotes returns an ARRAY
         const quote = data[0];
 
         await db.collection("quotes").doc("daily").set({

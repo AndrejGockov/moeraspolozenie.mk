@@ -11,7 +11,7 @@ export function Quiz() {
             <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
                 <div style={{ marginBottom: 32 }}>
                     <h1 style={{ margin: 0, fontSize: 32, fontWeight: 700, color: "#1f2937", textAlign: "center" }}>
-                        Daily Mood Check-In
+                        Daily Wellness Quiz
                     </h1>
                     <p style={{ marginTop: 10, color: "#6b7280", fontSize: 15, lineHeight: 1.6, textAlign: "center" }}>
                         Answer each statement based on how you've felt today.

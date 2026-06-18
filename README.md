@@ -12,9 +12,9 @@
 </h1>
 
 
-<h4 align="center">
+<h3 align="center">
     Use our curated questionnaire to figure out how your doing today, come back tomorrow and see if your doing any better.
-</h4>
+</h3>
 
 
 <br>
@@ -53,6 +53,7 @@
 +-- @types/node@16.18.126
 +-- @types/react-dom@19.2.3
 +-- @types/react@19.2.15
++-- firebase-admin@14.0.0
 +-- firebase@12.13.0
 +-- react-dom@19.2.6
 +-- react-router-dom@7.15.1

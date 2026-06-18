@@ -54,7 +54,7 @@ export function Dashboard() {
                 <div className="tab-content">
                     {data.tab === "stats" && (
                         <div>
-                            <h2 className="stats-title">Mood quiz statistics:</h2>
+                            <h2 className="stats-title">Past Quizzes:</h2>
                             {data.quizData.length > 0 ? (
                                 <div className="stats-grid">
                                     <div className="chart-wrapper">

@@ -18,7 +18,7 @@ export function QuizCompleted() {
                 zIndex: 1
             }}
         >
-            <h1>You have completed today's mood quiz! 🎉</h1>
+            <h1>You have completed today's wellness quiz! 🎉</h1>
 
             <div
                 style={{
@@ -31,12 +31,12 @@ export function QuizCompleted() {
                 }}
             >
                 <h2>
-                    Mood score:<br />
+                    Your wellness score today is:<br />
                     {isLoadingData ? "..." : `${data.avgScore} / 6`}
                 </h2>
 
                 <p style={{ fontSize: 16, marginBottom: 15 }}>
-                    {isLoadingData ? "Loading recommendation..." : data.recommendation}
+                    {isLoadingData ? "Loading personalized recommendation..." : data.recommendation}
                 </p>
 
                 <div
@@ -49,12 +49,8 @@ export function QuizCompleted() {
                         fontWeight: 600
                     }}
                 >
-                    Next quiz in: {timeLeft.hours}h {timeLeft.minutes}m
+                    Next quiz opens in: {timeLeft.hours}h {timeLeft.minutes}m
                 </div>
-
-                <p style={{ marginTop: 25, color: "#666" }}>
-                    Come back once the quiz opens!
-                </p>
             </div>
         </div>
     );

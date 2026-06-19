@@ -116,7 +116,7 @@ export function Dashboard() {
                                     </div>
                                 </div>
                             ) : (
-                                <p className="no-data-text">No mood data yet. Take the daily quiz to start tracking your mood charts!</p>
+                                <p className="no-data-text">No quiz data yet. Take the daily quiz to start tracking your mental health!</p>
                             )}
                         </div>
                     )}
@@ -186,7 +186,7 @@ export function Dashboard() {
                         <div>
                             <div className="tab-header-row">
                                 <h2 className="tab-header-title">
-                                    Check-up History
+                                    Quiz History
                                     <span className="tab-header-count">({data.filteredQuizzes.length} found)</span>
                                 </h2>
 
@@ -257,7 +257,7 @@ export function Dashboard() {
                                                                 </p>
                                                             </div>
                                                             <div className="quiz-card-score" style={{ background: themeBg, color: themeColor, border: `1px solid ${themeColor}22` }}>
-                                                                Mood: {typeof q.avgScore === "number" ? q.avgScore.toFixed(1) : q.avgScore} / 6
+                                                                Average: {typeof q.avgScore === "number" ? q.avgScore.toFixed(1) : q.avgScore} / 6
                                                             </div>
                                                         </div>
 

@@ -36,8 +36,8 @@
 - AI recommendations based on quiz results
 - Dashboard
 - Statistics on answered quizzes
-- Viewing old quiz answers 
-- Fun Facts from HBSC teens in North Macedonia in Homepage
+- Viewing old quizzes 
+- Fun Facts from HBSC teens in North Macedonia on the home-page
 - Daily quotes from the Zenquotes API
 - Saving daily quotes
 
@@ -55,6 +55,7 @@
 +-- @types/react@19.2.15
 +-- firebase-admin@14.0.0
 +-- firebase@12.13.0
++-- gh-pages@6.3.0
 +-- react-dom@19.2.6
 +-- react-router-dom@7.15.1
 +-- react-scripts@5.0.1
@@ -72,14 +73,14 @@
 3. In the root folder create a .env file and add this to the file: <br>
 ```
 REACT_APP_GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-REACT_APP_FIREBASE_API_KEY=your_real_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_real_auth_domain
-REACT_APP_FIREBASE_PROJECT_ID=your_real_project_id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_real_storage_bucket
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_real_sender_id
-REACT_APP_FIREBASE_APP_ID=your_real_app_id
-REACT_APP_FIREBASE_MEASUREMENT_ID=your_real_measurement_id
-REACT_APP_GEMINI_API_KEY=your_real_gemini_key
+REACT_APP_FIREBASE_API_KEY=YOUR_API_KEY
+REACT_APP_FIREBASE_AUTH_DOMAIN=YOUR_AUTH_DOMAIN
+REACT_APP_FIREBASE_PROJECT_ID=YOUR_PROJECT_ID
+REACT_APP_FIREBASE_STORAGE_BUCKET=YOUR_STORAGE_BUCKET
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=YOUR_SENDER_ID
+REACT_APP_FIREBASE_APP_ID=YOUR_APP_ID
+REACT_APP_FIREBASE_MEASUREMENT_ID=YOUR_MEASUREMENT_ID
+REACT_APP_GEMINI_API_KEY=YOUR_GEMINI_KEY
 ```
 4. Run the project: `npm run start`
 

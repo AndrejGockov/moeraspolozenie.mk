@@ -2,7 +2,7 @@ name: Daily Quote Update
 
 on:
   schedule:
-    - cron: "0 0 * * *"  # every day at midnight UTC
+    - cron: "0 6 * * *"  # every day at midnight UTC
   workflow_dispatch: # allows manual run button
 
 jobs:

@@ -84,7 +84,7 @@ export function Register() {
     };
 
     return (
-        <div className="formContent">
+        <div className="formContent" style={{ position: "relative", zIndex: 1 }}>
             <h1>Create an account</h1>
 
             {error && <p style={{ color: "red", fontWeight: 500, margin: "10px 0" }}>{error}</p>}

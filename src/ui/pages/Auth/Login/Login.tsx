@@ -75,7 +75,7 @@ export function Login() {
     };
 
     return (
-        <div className="formContent">
+        <div className="formContent" style={{ position: "relative", zIndex: 1 }}>
             <h1>Log in to your account</h1>
 
             {error && <p style={{ color: "red", fontWeight: 500, margin: "10px 0" }}>{error}</p>}

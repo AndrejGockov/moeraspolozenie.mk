@@ -16,6 +16,7 @@ import { Home } from "./ui/pages/Home/Home";
 import { Footer } from "./ui/components/Footer/Footer";
 import { AuthProvider } from "./hooks/useAuth";
 import { QuizGuard } from "./ui/pages/Quiz/QuizGuard";
+import { BackgroundEffect } from "./ui/components/BackgroundEffect/BackgroundEffect";
 
 function App() {
     return (
@@ -24,21 +25,21 @@ function App() {
                 <Router>
                     <div className="App">
                         <Navbar />
+                        <BackgroundEffect />
                         <main className="content-body">
                             <Routes>
                                 <Route path="/" element={<Home />} />
                                 <Route
                                     path="/login"
-                                    element = {
+                                    element={
                                         <PublicRoute>
                                             <Login />
                                         </PublicRoute>
                                     }
                                 />
-
                                 <Route
                                     path="/register"
-                                    element = {
+                                    element={
                                         <PublicRoute>
                                             <Register />
                                         </PublicRoute>
@@ -46,7 +47,7 @@ function App() {
                                 />
                                 <Route
                                     path="/dashboard"
-                                    element = {
+                                    element={
                                         <ProtectedRoute>
                                             <Dashboard />
                                         </ProtectedRoute>
@@ -54,7 +55,7 @@ function App() {
                                 />
                                 <Route
                                     path="/quiz"
-                                    element = {
+                                    element={
                                         <ProtectedRoute>
                                             <QuizGuard>
                                                 <Quiz />

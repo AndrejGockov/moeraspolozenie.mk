@@ -23,3 +23,8 @@ body {
   padding: 20px;
   box-sizing: border-box;
 }
+
+footer {
+  position: relative;
+  z-index: 1;
+}

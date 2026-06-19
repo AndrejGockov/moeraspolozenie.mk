@@ -7,7 +7,7 @@ export function Quiz() {
     const { answers, submitting, isButtonDisabled, handleSelect, handleSubmit } = useQuizForm();
 
     return (
-        <div style={{ maxWidth: 1280, margin: "40px auto", padding: "0 20px", fontFamily: "system-ui, sans-serif" }}>
+        <div style={{ maxWidth: 1280, margin: "40px auto", padding: "0 20px", fontFamily: "system-ui, sans-serif", position: "relative", zIndex: 1  }}>
             <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
                 <div style={{ marginBottom: 32 }}>
                     <h1 style={{ margin: 0, fontSize: 32, fontWeight: 700, color: "#1f2937", textAlign: "center" }}>

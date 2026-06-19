@@ -57,38 +57,48 @@ export function Home() {
     };
 
     return (
-        <div className="home-container">
-            <h1 className="home-title">
-                {renderTitle()}
-            </h1>
-
-            <p className="home-subtitle">
-                Check how well you're doing today and keep up your mental health ❤️
-            </p>
-
-            <button
-                className={`home-cta-btn ${loading ? "btn-loading" : ""}`}
-                onClick={handleCtaClick}
-                disabled={loading && !cachedName}
-            >
-                {loading && !cachedName ? (
-                    <span className="btn-spinner"></span>
-                ) : user || cachedName ? (
-                    "Do your daily Wellness Quiz!"
-                ) : (
-                    "Join now & check your mood!"
-                )}
-            </button>
-
-            <div className="home-fun-fact">
-                <p>
-                    <strong>Fun fact: </strong>
-                    <FunFact />
-                </p>
-                <span className="fact-source-footer">
-                    By HBSC about teens in North Macedonia
-                </span>
+        <>
+            <div className="home-bg" aria-hidden="true">
+                <div className="home-bg-circle c1" />
+                <div className="home-bg-circle c2" />
+                <div className="home-bg-circle c3" />
             </div>
-        </div>
+
+            <div className="home-container">
+                <div className="home-content">
+                    <h1 className="home-title">
+                        {renderTitle()}
+                    </h1>
+
+                    <p className="home-subtitle">
+                        Check how well you're doing today and keep up your mental health ❤️
+                    </p>
+
+                    <button
+                        className={`home-cta-btn ${loading ? "btn-loading" : ""}`}
+                        onClick={handleCtaClick}
+                        disabled={loading && !cachedName}
+                    >
+                        {loading && !cachedName ? (
+                            <span className="btn-spinner"></span>
+                        ) : user || cachedName ? (
+                            "Do your daily Wellness Quiz!"
+                        ) : (
+                            "Join now & check your mood!"
+                        )}
+                    </button>
+
+                    <div className="home-fun-fact">
+                        <p>
+                            <strong>Fun fact: </strong>
+                            <FunFact />
+                        </p>
+                        <span className="fact-source-footer">
+                            By HBSC about teens in North Macedonia
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </>
     );
 }

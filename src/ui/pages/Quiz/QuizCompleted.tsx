@@ -13,7 +13,9 @@ export function QuizCompleted() {
                 padding: 28,
                 boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
                 textAlign: "center",
-                boxSizing: "border-box"
+                boxSizing: "border-box",
+                position: "relative",
+                zIndex: 1
             }}
         >
             <h1>You have completed today's mood quiz! 🎉</h1>

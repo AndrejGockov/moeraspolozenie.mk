@@ -54,7 +54,7 @@ export function ResetPassword() {
     };
 
     return (
-        <div className="formContent">
+        <div className="formContent" style={{ position: "relative", zIndex: 1 }}>
             <h1>Forgot Password</h1>
 
             {error && <p style={{ color: "red", fontWeight: 500 }}>{error}</p>}

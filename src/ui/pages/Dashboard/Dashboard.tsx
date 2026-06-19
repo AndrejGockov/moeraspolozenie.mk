@@ -17,7 +17,10 @@ export function Dashboard() {
     });
 
     // const totalQuizPages = Math.ceil(data.filteredQuizzes.length / data.itemsPerPage);
-    const currentQuizzes = data.filteredQuizzes.slice((data.currentQuizPage - 1) * data.itemsPerPage, data.currentQuizPage * data.itemsPerPage);
+    const currentQuizzes = [...data.filteredQuizzes].reverse().slice(
+        (data.currentQuizPage - 1) * data.itemsPerPage,
+        data.currentQuizPage * data.itemsPerPage
+    );
 
     const totalQuotePages = Math.ceil(data.filteredQuotes.length / data.itemsPerPage);
     const currentQuotes = data.filteredQuotes.slice((data.currentQuotePage - 1) * data.itemsPerPage, data.currentQuotePage * data.itemsPerPage);

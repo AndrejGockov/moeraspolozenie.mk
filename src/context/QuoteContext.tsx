@@ -26,6 +26,14 @@ type QuoteContextType = {
 
 const QuoteContext = createContext<QuoteContextType | null>(null);
 
+function getNextExpiry(): number {
+    const now = new Date();
+    const next = new Date();
+    next.setUTCHours(6, 0, 0, 0);
+    if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+    return next.getTime();
+}
+
 export function QuoteProvider({ children }: { children: React.ReactNode }) {
     const { user, loading: authLoading } = useAuth();
 
@@ -38,13 +46,10 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
     const [quoteLoading, setQuoteLoading] = useState(true);
     const [savedQuotesLoading, setSavedQuotesLoading] = useState(false);
 
-    const today = new Date().toISOString().split("T")[0];
-
     useEffect(() => {
         const fetchDailyQuote = async () => {
-            const lastFetch = localStorage.getItem("quote_date");
-
-            if (lastFetch === today) {
+            const expiry = localStorage.getItem("quote_expiry");
+            if (expiry && Date.now() < parseInt(expiry)) {
                 setQuoteLoading(false);
                 return;
             }
@@ -58,7 +63,7 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
                     const quote = { text: data.text || "", author: data.author || "" };
                     setDailyQuote(quote);
                     localStorage.setItem("dailyQuote", JSON.stringify(quote));
-                    localStorage.setItem("quote_date", today);
+                    localStorage.setItem("quote_expiry", getNextExpiry().toString());
                 }
             } catch (err) {
                 console.error("Error fetching daily quote:", err);
@@ -68,7 +73,7 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
         };
 
         fetchDailyQuote();
-    }, [today]);
+    }, []);
 
     useEffect(() => {
         if (authLoading) return;

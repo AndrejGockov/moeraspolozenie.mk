@@ -367,3 +367,73 @@
     letter-spacing: 0.3px;
     text-transform: uppercase;
 }
+.history-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.history-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    height: 38px;
+    white-space: nowrap;
+}
+
+.history-search {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-size: 14px;
+    flex: 1;
+    min-width: 160px;
+    outline: none;
+    height: 38px;
+    box-sizing: border-box;
+}
+
+.history-date {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-size: 14px;
+    background: white;
+    color: #2d3748;
+    outline: none;
+    cursor: pointer;
+    height: 38px;
+    width: 150px;
+    box-sizing: border-box;
+}
+
+.history-clear-btn {
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid #fecaca;
+    font-size: 14px;
+    background: white;
+    color: #ef4444;
+    cursor: pointer;
+    font-weight: 500;
+    height: 38px;
+    white-space: nowrap;
+}
+
+.history-clear-btn:hover {
+    background: #fff1f0;
+}
+
+.quiz-card-score {
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+    min-width: 90px;
+    text-align: center;
+}

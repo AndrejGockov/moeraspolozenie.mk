@@ -197,9 +197,9 @@ export function Dashboard() {
                                             onChange={(e) => { data.setTimeFilter(e.target.value as any); data.setCurrentQuizPage(1); }}
                                             className="history-select"
                                         >
-                                            <option value="all">All Time</option>
-                                            <option value="week">Last Week</option>
-                                            <option value="month">Last Month</option>
+                                            <option value="all">All time</option>
+                                            <option value="week">Last week</option>
+                                            <option value="month">Last month</option>
                                         </select>
 
                                         <input
@@ -209,14 +209,22 @@ export function Dashboard() {
                                             onChange={(e) => { data.setQuizSearchQuery(e.target.value); data.setCurrentQuizPage(1); }}
                                             className="history-search"
                                         />
-                                        At date:
+
                                         <input
                                             type="date"
                                             value={data.selectedDate}
                                             onChange={(e) => { data.setSelectedDate(e.target.value); data.setTimeFilter("all"); data.setCurrentQuizPage(1); }}
                                             className="history-date"
                                         />
+
+                                        <button
+                                            onClick={() => { data.setSelectedDate(""); data.setTimeFilter("all"); data.setQuizSearchQuery(""); data.setCurrentQuizPage(1); }}
+                                            className="history-clear-btn"
+                                        >
+                                            Clear
+                                        </button>
                                     </div>
+
                                 )}
                             </div>
 

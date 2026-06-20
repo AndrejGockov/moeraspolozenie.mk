@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/updateQuote",
+      "schedule": "0 1 * * *"
+    }
+  ]
+}

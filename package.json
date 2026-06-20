@@ -1,7 +1,7 @@
 {
   "name": "moeraspolozenie",
   "version": "0.1.0",
-  "homepage": "https://AndrejGockov.github.io/moeraspolozenie.mk/",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "@google/genai": "^2.7.0",

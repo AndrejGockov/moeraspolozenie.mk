@@ -29,7 +29,7 @@ const QuoteContext = createContext<QuoteContextType | null>(null);
 function getNextExpiry(): number {
     const now = new Date();
     const next = new Date();
-    next.setUTCHours(6, 0, 0, 0);
+    next.setUTCHours(6, 10, 0, 0);
     if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
     return next.getTime();
 }

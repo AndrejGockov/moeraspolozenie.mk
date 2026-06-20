@@ -29,7 +29,7 @@ const QuoteContext = createContext<QuoteContextType | null>(null);
 function getNextExpiry(): number {
     const now = new Date();
     const next = new Date();
-    next.setUTCHours(1, 5, 0, 0); // updates at UTC 01:05 with firestore buffer
+    next.setUTCHours(2, 5, 0, 0); // updates at UTC 01:05 with firestore buffer
     if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
     return next.getTime();
 }

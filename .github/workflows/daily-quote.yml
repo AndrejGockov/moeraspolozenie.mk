@@ -22,6 +22,6 @@ jobs:
         run: npm install firebase-admin node-fetch@2 typescript ts-node @types/node @types/node-fetch
 
       - name: Run script
-        run: npx tsc --module commonjs --target ES2020 --esModuleInterop true --skipLibCheck true src/api/updateQuote.ts && node src/api/updateQuote.js
+        run: npx tsc --module commonjs --target ES2020 --esModuleInterop true --skipLibCheck true api/updateQuote.ts && node api/updateQuote.js
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

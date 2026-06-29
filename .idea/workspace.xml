@@ -2,12 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a10ad90d-8e30-44b2-8b71-9a26444a1ee5" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/daily-quote.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/daily-quote.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/tsconfig.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/updateQuote.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/updateQuote.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vercel.json" beforeDir="false" afterPath="$PROJECT_DIR$/vercel.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +61,7 @@
       <option name="presentableId" value="Default" />
       <updated>1782727286759</updated>
       <workItem from="1782727288164" duration="369000" />
-      <workItem from="1782758198866" duration="436000" />
+      <workItem from="1782758198866" duration="851000" />
     </task>
     <servers />
   </component>

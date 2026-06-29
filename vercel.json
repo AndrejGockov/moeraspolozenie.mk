@@ -1,14 +1,19 @@
 {
   "buildCommand": "npm install --legacy-peer-deps && react-scripts build",
   "outputDirectory": "build",
+  "functions": {
+    "src/api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "rewrites": [
-    { 
-      "source": "/api/(.*)", 
-      "destination": "/api/$1" 
+    {
+      "source": "/api/(.*)",
+      "destination": "/src/api/$1"
     },
-    { 
-      "source": "/((?!api/).*)", 
-      "destination": "/index.html" 
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ],
   "crons": [

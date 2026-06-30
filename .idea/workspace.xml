@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a10ad90d-8e30-44b2-8b71-9a26444a1ee5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/daily-quote.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/daily-quote.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +36,7 @@
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Users\\angel\\AppData\\Local\\Programs\\WebStorm\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "ts.external.directory.path": "C:\\Users\\angel\\Desktop\\moeraspolozenie.mk\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -61,7 +60,8 @@
       <option name="presentableId" value="Default" />
       <updated>1782727286759</updated>
       <workItem from="1782727288164" duration="369000" />
-      <workItem from="1782758198866" duration="851000" />
+      <workItem from="1782758198866" duration="1391000" />
+      <workItem from="1782829297062" duration="1056000" />
     </task>
     <servers />
   </component>

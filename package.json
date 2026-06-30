@@ -1,6 +1,7 @@
 {
   "name": "moeraspolozenie",
   "version": "0.1.0",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "@google/genai": "^2.10.0",

@@ -24,6 +24,7 @@ yarn-debug.log*
 yarn-error.log*
 
 .vs/
+.idea/
 
 # Firebase
 src/firebase.ts

@@ -20,7 +20,7 @@
 <br>
 <br> 
 <p>
-<strong>moeraspolozenie.mk</strong> is a platform for checking your daily well-being and reviewing how you felt on previous days, as well as finding and saving inspirational quotes. 
+<strong>moeraspolozenie.mk</strong> is a platform for checking your daily well-being and reviewing how you felt on previous days, as well as finding and saving your favorite daily inspirational quotes. 
 </p> 
 
 

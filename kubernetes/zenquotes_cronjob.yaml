@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: update-quote-cron
+  namespace: moeraspolozenie-ns
+spec:
+  # 1:00AM UTC
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: cron-runner
+              image: andrejgockov/moeraspolozenie:latest
+              command: ["npx", "tsx", "api/updateQuote.ts"]
+              envFrom:
+                - secretRef:
+                    name: app-secrets
+          restartPolicy: OnFailure
